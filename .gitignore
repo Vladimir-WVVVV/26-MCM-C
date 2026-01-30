@@ -1,0 +1,28 @@
+# Ignore all subdirectories with Chinese characters (dataset folders)
+A137*
+2026*
+*2026*
+*美赛*
+
+# Ignore specific large files
+*.pdf
+*.zip
+*.rar
+*.mov
+*.mp4
+*.docx
+*.xlsx
+
+# But keep our source code and generated CSVs
+!Q1*.py
+!Q2*.py
+!Q3*.py
+!Q4*.py
+!Q*.csv
+
+# Ignore standard python stuff
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv
