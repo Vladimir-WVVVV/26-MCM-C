@@ -18,14 +18,22 @@ def rankdata_min(a):
         ranks[i] = rank
     return ranks
 
-def main():
-    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+def main(file_path='e:/美赛/Q1_estimated_fan_votes_optimized.csv'):
     if not os.path.exists(file_path):
-        print("File not found.")
+        print(f"File not found: {file_path}")
         return
         
     df = pd.read_csv(file_path)
     
+    # Rename column if needed for ML output compatibility
+    if 'ml_pred_vote_share' in df.columns:
+        df['est_vote_share'] = df['ml_pred_vote_share']
+    if 'ml_pred_vote_std' in df.columns:
+        df['est_vote_std'] = df['ml_pred_vote_std']
+    # If no std in ML output, set to 0
+    if 'est_vote_std' not in df.columns:
+        df['est_vote_std'] = 0
+
     total_weeks = 0
     consistent_weeks = 0
     total_std = 0
@@ -98,4 +106,7 @@ def main():
     print(f"Average Certainty (Std Dev): {avg_std:.4f}")
 
 if __name__ == "__main__":
-    main()
+    print("Evaluating Q1 Optimized Model (Monte Carlo):")
+    main('e:/美赛/Q1_estimated_fan_votes_optimized.csv')
+    print("\nEvaluating Q1 Enhanced ML Model:")
+    main('e:/美赛/Q1_enhanced_ml_estimates.csv')

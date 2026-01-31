@@ -2,138 +2,111 @@ import pandas as pd
 import numpy as np
 import os
 
-# ==========================================
-# Regression Tool
-# ==========================================
+def load_data(file_path):
+    if not os.path.exists(file_path):
+        print(f"Error: File not found at {file_path}")
+        return None
+    return pd.read_csv(file_path)
 
-class SimpleLinearRegression:
-    def __init__(self):
-        self.weights = None
-        self.feature_names = None
-        
-    def fit(self, X, y, feature_names=None):
-        # Add Bias term
-        X_b = np.c_[np.ones((X.shape[0], 1)), X]
-        # w = (X^T X)^-1 X^T y
+def extract_features(df):
+    # Basic cleaning
+    df = df.dropna(subset=['score', 'est_vote_share']).copy()
+    
+    # Feature Engineering
+    df['is_athlete'] = df['industry'].apply(lambda x: 1 if 'athlete' in str(x).lower() or 'football' in str(x).lower() else 0)
+    df['is_actor'] = df['industry'].apply(lambda x: 1 if 'actor' in str(x).lower() or 'actress' in str(x).lower() else 0)
+    df['is_singer'] = df['industry'].apply(lambda x: 1 if 'singer' in str(x).lower() or 'music' in str(x).lower() else 0)
+    df['is_reality'] = df['industry'].apply(lambda x: 1 if 'reality' in str(x).lower() else 0)
+    
+    # Age handling
+    def parse_age(x):
         try:
-            self.weights = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y
+            return float(x)
         except:
-            self.weights = np.linalg.pinv(X_b.T @ X_b) @ X_b.T @ y
-            
-        if feature_names:
-            self.feature_names = ['Intercept'] + feature_names
-        else:
-            self.feature_names = ['Intercept'] + [f'x{i}' for i in range(X.shape[1])]
-            
-    def get_coefficients(self):
-        return dict(zip(self.feature_names, self.weights))
-
-# ==========================================
-# Analysis Logic
-# ==========================================
-
-def prepare_data(df):
-    """
-    Prepare X (Factors) and Y (Outcomes)
-    """
-    df = df.copy()
+            return 35.0 # median
+    df['age_val'] = df['age'].apply(parse_age)
+    df['age_sq'] = df['age_val'] ** 2 # Capture non-linearity
     
-    # 1. Clean Age
-    df['age'] = pd.to_numeric(df['age'], errors='coerce')
-    df['age'] = df['age'].fillna(df['age'].median())
+    # Normalize targets
+    df['score_norm'] = df['score'] / df.groupby('season')['score'].transform('max')
+    df['vote_norm'] = df['est_vote_share'] # Already share
     
-    # 2. Industry Dummies (Top 5 + Other)
-    top_inds = ['athlete', 'actor', 'singer', 'model', 'comedian']
-    ind_cols = []
-    for ind in top_inds:
-        col_name = f'Ind_{ind}'
-        df[col_name] = df['industry'].astype(str).apply(lambda x: 1 if ind in x.lower() else 0)
-        ind_cols.append(col_name)
-        
-    # 3. Normalize numerical inputs for comparable coefficients
-    df['age_std'] = (df['age'] - df['age'].mean()) / df['age'].std()
-    
-    feature_cols = ['age_std'] + ind_cols
-    
-    # Outcomes
-    # Normalize outcomes to compare magnitude of impact
-    df['score_std'] = (df['score'] - df['score'].mean()) / df['score'].std()
-    
-    # Use ML Enhanced Vote Share if available, else standard estimate
-    if 'ml_pred_vote_share' in df.columns:
-        vote_col = 'ml_pred_vote_share'
-    else:
-        vote_col = 'est_vote_share'
-        
-    df['vote_std'] = (df[vote_col] - df[vote_col].mean()) / df[vote_col].std()
-    
+    feature_cols = ['age_val', 'age_sq', 'is_athlete', 'is_actor', 'is_singer', 'is_reality', 'season']
     return df, feature_cols
 
+class LinearRegressionNumPy:
+    def __init__(self):
+        self.coef_ = None
+        self.intercept_ = 0.0
+        
+    def fit(self, X, y):
+        # Add intercept column
+        X_b = np.c_[np.ones((len(X), 1)), X]
+        try:
+            # Normal Equation: theta = (X.T * X)^-1 * X.T * y
+            # Use pinv for stability
+            theta_best = np.linalg.pinv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)
+            self.intercept_ = theta_best[0]
+            self.coef_ = theta_best[1:]
+        except Exception as e:
+            print(f"Regression Error: {e}")
+            self.coef_ = np.zeros(X.shape[1])
+            
+    def predict(self, X):
+        X_b = np.c_[np.ones((len(X), 1)), X]
+        return X_b.dot(np.r_[self.intercept_, self.coef_])
+
+def analyze_hybrid(df, features, target_col, target_name):
+    print(f"\n--- Analyzing Factors for {target_name} ---")
+    
+    # Standardize features for comparable coefficients (Feature Importance)
+    X = df[features].values
+    y = df[target_col].values
+    
+    # Debug
+    print(f"X shape: {X.shape}")
+    if np.isnan(X).any():
+        print("NaNs found in X. Filling with 0.")
+        X = np.nan_to_num(X)
+    
+    X_mean = np.mean(X, axis=0)
+    X_std = np.std(X, axis=0) + 1e-8
+    X_scaled = (X - X_mean) / X_std
+    
+    # Fit OLS
+    lr = LinearRegressionNumPy()
+    lr.fit(X_scaled, y)
+    
+    # Display Results
+    results = []
+    for idx, feat in enumerate(features):
+        results.append({
+            'Feature': feat,
+            'Standardized_Coef (Importance)': lr.coef_[idx],
+            'Direction': 'Positive' if lr.coef_[idx] > 0 else 'Negative'
+        })
+        
+    res_df = pd.DataFrame(results).sort_values('Standardized_Coef (Importance)', key=abs, ascending=False)
+    print(res_df)
+    
+    return res_df
+
 def main():
-    print("Loading Enhanced Estimates...")
-    path = 'e:/美赛/Q1_enhanced_ml_estimates.csv'
-    if not os.path.exists(path):
-        print("Enhanced estimates not found, falling back to optimized...")
-        path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    df = load_data(file_path)
+    if df is None: return
     
-    df = pd.read_csv(path)
+    df_clean, features = extract_features(df)
     
-    print(f"Data Loaded: {len(df)} rows")
+    # Analyze Judge Scores
+    analyze_hybrid(df_clean, features, 'score_norm', 'Judge Scores')
     
-    # Prepare Data
-    df_reg, features = prepare_data(df)
+    # Analyze Fan Votes
+    analyze_hybrid(df_clean, features, 'vote_norm', 'Fan Votes')
     
-    X = df_reg[features].values
-    y_score = df_reg['score_std'].values
-    y_vote = df_reg['vote_std'].values
-    
-    # Model 1: Factors affecting Judge Score
-    print("\n--- Model 1: Factors affecting Judge Score ---")
-    reg_score = SimpleLinearRegression()
-    reg_score.fit(X, y_score, features)
-    coeffs_score = reg_score.get_coefficients()
-    for k, v in coeffs_score.items():
-        print(f"{k}: {v:.4f}")
-        
-    # Model 2: Factors affecting Fan Votes
-    print("\n--- Model 2: Factors affecting Fan Votes ---")
-    reg_vote = SimpleLinearRegression()
-    reg_vote.fit(X, y_vote, features)
-    coeffs_vote = reg_vote.get_coefficients()
-    for k, v in coeffs_vote.items():
-        print(f"{k}: {v:.4f}")
-        
-    # Comparison
-    print("\n--- Comparative Analysis ---")
-    print(f"{'Factor':<15} | {'Judge Impact':<12} | {'Fan Impact':<12} | {'Difference':<12}")
-    print("-" * 55)
-    for feat in features:
-        j_imp = coeffs_score.get(feat, 0)
-        f_imp = coeffs_vote.get(feat, 0)
-        diff = f_imp - j_imp
-        print(f"{feat:<15} | {j_imp:>.4f}       | {f_imp:>.4f}     | {diff:>.4f}")
-        
-    # Conclusion
-    print("\n--- Key Conclusions ---")
-    # Age
-    age_diff = coeffs_vote['age_std'] - coeffs_score['age_std']
-    if age_diff > 0.1:
-        print("- Age helps Fan Votes MORE than Judge Scores.")
-    elif age_diff < -0.1:
-        print("- Age hurts Fan Votes MORE than Judge Scores (or helps Judges more).")
-    else:
-        print("- Age has similar impact on both.")
-        
-    # Industry
-    best_ind_vote = max([(k, v) for k, v in coeffs_vote.items() if 'Ind_' in k], key=lambda x: x[1])
-    print(f"- Best Industry for Fan Votes: {best_ind_vote[0]} (Coef: {best_ind_vote[1]:.4f})")
-    
-    best_ind_score = max([(k, v) for k, v in coeffs_score.items() if 'Ind_' in k], key=lambda x: x[1])
-    print(f"- Best Industry for Judge Score: {best_ind_score[0]} (Coef: {best_ind_score[1]:.4f})")
-    
-    # Save results
-    df_reg.to_csv('e:/美赛/Q3_factor_regression_results.csv', index=False)
-    print("\nDetailed regression data saved to Q3_factor_regression_results.csv")
+    print("\n--- Insight Summary ---")
+    print("1. Compare 'age_val' vs 'age_sq' to see if impact is linear or curved.")
+    print("2. Compare 'is_athlete' coefficient magnitude between Judges and Fans.")
 
 if __name__ == "__main__":
     main()

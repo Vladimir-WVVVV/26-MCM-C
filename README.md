@@ -18,7 +18,7 @@
 ### 核心脚本 (Core Scripts)
 | 文件名 | 描述 |
 | :--- | :--- |
-| **`Q1_estimate_votes.py`** | **[Task 1]** 核心估算脚本。使用“双引擎机制”（自适应蒙特卡洛 + 岭回归先验）反向估算粉丝投票。 |
+| **`Q1_hybrid_solver.py`** | **[Task 1]** 核心估算脚本。使用“迭代MAP引导MCMC”机制（Iterative MAP-Guided MCMC）反向估算粉丝投票。 |
 | **`Q2_compare_methods.py`** | **[Task 2]** 排名法 vs 百分比法仿真脚本。包含反事实模拟、偏向性分析和争议案例复盘。 |
 | **`Q3_analyze_factors.py`** | **[Task 3]** 归因分析脚本。使用混合非线性模型量化年龄、行业对评委分/粉丝票的影响。 |
 | **`Q4_design_mechanism.py`** | **[Task 4]** 赛制设计脚本。实现多目标参数寻优，寻找最佳的动态权重组合。 |
@@ -26,9 +26,8 @@
 ### 数据文件 (Data Files)
 | 文件名 | 描述 |
 | :--- | :--- |
-| `Q1_estimated_fan_votes_optimized.csv` | **最终投票数据集**。包含 34 个赛季完整的评委分、估算粉丝得票率（准确率 88.64%）。 |
+| `Q1_estimated_fan_votes_optimized.csv` | **最终投票数据集**。包含 34 个赛季完整的评委分、估算粉丝得票率（准确率 98.21%）。 |
 | `Q2_method_counterfactuals.csv` | Task 2 的反事实模拟结果，记录了每一周两种计分方法的差异。 |
-| `Q3_factor_regression_results.csv` | Task 3 的回归系数表。 |
 
 ---
 
@@ -37,15 +36,15 @@
 ### 1. 环境准备
 本项目坚持 **"Zero-Dependency"** 原则，仅依赖标准科学计算库。
 ```bash
-pip install pandas numpy
+pip install pandas numpy scipy
 ```
 
 ### 2. 运行流程
 建议按以下顺序执行，以确保数据流连贯：
 
 ```bash
-# 1. [核心] 生成高精度投票估算数据 (约需 1-2 分钟)
-python Q1_estimate_votes.py
+# 1. [核心] 运行高精度投票估算与鲁棒性验证 (约需 2-3 分钟)
+python Q1_evaluate_accuracy_hybrid.py
 
 # 2. [分析] 运行排名法 vs 百分比法对比模拟
 python Q2_compare_methods.py
@@ -61,7 +60,7 @@ python Q4_design_mechanism.py
 
 ## 📊 核心发现摘要 (Key Findings)
 
-*   **精准还原**: 我们的双引擎模型在 264 个历史周次中实现了 **88.64%** 的还原准确率。
+*   **精准还原**: 我们的双引擎模型在 335 个历史周次中实现了 **98.21%** 的还原准确率。
 *   **排名法陷阱**: 排名法对“人气选手”的保护率高达 **99.6%**，是导致技术高分选手被误杀的主要原因（差异率 19.10%）。
 *   **年龄悖论**: 评委严格遵循“年轻优势”（线性负相关），而粉丝对 60 岁以上的“传奇选手”展现出显著的宽容（U型曲线）。
 *   **最优赛制**: 推荐采用 **"30/70 -> 50/50 动态权重" + "Bottom 3 评委拯救"** 机制，可将技术不公率降至 **<0.5%**。

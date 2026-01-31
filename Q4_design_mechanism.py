@@ -1,177 +1,154 @@
 import pandas as pd
 import numpy as np
+import os
 
+# Helper for ranking
 def rankdata_min(a):
-    a = np.array(a)
-    n = len(a)
-    sort_indices = np.argsort(a) # Ascending
-    ranks = np.empty(n, dtype=int)
+    arr = np.array(a)
+    sorted_indices = np.argsort(arr)
+    ranks = np.empty_like(sorted_indices)
     current_rank = 1
-    for i in range(n):
-        if i > 0 and a[sort_indices[i]] == a[sort_indices[i-1]]:
-            # Same rank as previous
-            ranks[sort_indices[i]] = ranks[sort_indices[i-1]]
-        else:
-            # Rank is i+1 (1-based)
-            ranks[sort_indices[i]] = i + 1
+    for i in range(len(sorted_indices)):
+        if i > 0 and arr[sorted_indices[i]] != arr[sorted_indices[i-1]]:
+            current_rank = i + 1
+        ranks[sorted_indices[i]] = current_rank
     return ranks
 
-def calculate_new_system_score(df_week, week_num, max_weeks):
-    """
-    Proposed Mechanism: Dynamic Weight + Two-Stage Elimination
-    
-    Stage 1: Dynamic Weight
-    - Early (1-4): w=0.4 (Fan focus)
-    - Mid (5-8): w=0.5 (Balanced)
-    - Late (>8): w=0.6 (Technique focus)
-    
-    Standardization:
-    - Score: (Score - 1) / 9  (Assuming max score per judge is 10, total avg score used here)
-    - Vote: Vote Share (Already 0-1) -> Scaled to Max? No, just use share or relative to max.
-      Let's use Vote / Max_Vote_in_Week to make it comparable to Score [0,1].
-    """
-    scores = df_week['score'].values
-    votes = df_week['est_vote_share'].values
-    names = df_week['name'].values
-    n = len(scores)
-    
-    # Determine Weight w
-    if week_num <= 4:
-        w = 0.4
-    elif week_num <= 8:
-        w = 0.5
-    else:
-        w = 0.6
-        
-    # Standardize Scores (Assume score is sum of 3 or 4 judges, need to normalize to 0-1)
-    # Max possible score: usually 30 or 40. Let's use Min-Max relative to current week to be safe, 
-    # or absolute if we know the scale. Let's use Min-Max of the week to handle different judge counts.
-    if np.max(scores) > np.min(scores):
-        norm_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores))
-    else:
-        norm_scores = np.zeros(n) + 0.5
-        
-    # Standardize Votes (Relative to Max Share)
-    if np.max(votes) > 0:
-        norm_votes = votes / np.max(votes)
-    else:
-        norm_votes = np.zeros(n)
-        
-    # Combined Score (Stage 1)
-    combined = norm_scores * w + norm_votes * (1 - w)
-    
-    return combined, norm_scores
+def load_data(file_path):
+    if not os.path.exists(file_path):
+        print(f"Error: File not found at {file_path}")
+        return None
+    return pd.read_csv(file_path)
 
-def simulate_elimination(df_week, week_num, max_weeks):
+def simulate_mechanism(df, weights):
     """
-    Simulate elimination with new system.
-    Stage 2: Bottom 3 -> Technical Safety Score -> Judge Vote
+    Simulates the new mechanism with given weights [w_early, w_mid, w_late].
+    Returns metrics: Fairness Score, Retention Score.
     """
-    combined, norm_scores = calculate_new_system_score(df_week, week_num, max_weeks)
+    w_early, w_mid, w_late = weights
     
-    df_week = df_week.copy()
-    df_week['new_score'] = combined
-    df_week['norm_judge_score'] = norm_scores
+    # Define phases
+    # Early: Week 1-4, Mid: 5-8, Late: 9+
     
-    # Sort descending
-    df_sorted = df_week.sort_values('new_score', ascending=False).reset_index(drop=True)
+    # We need to simulate week by week, removing people.
+    # This is complex because removal changes the next week's pool.
+    # For simplification in optimization loop:
+    # We check "At Risk" status (Bottom 3) using the new weights.
+    # If a High Scorer is in Bottom 3, it's a Fairness Penalty.
+    # If a High Voter is in Bottom 3, it's a Retention Penalty.
     
-    if len(df_sorted) < 3:
-        # Just eliminate last
-        eliminated = df_sorted.iloc[-1]['name']
-        return eliminated, df_sorted
+    fairness_penalties = 0
+    retention_penalties = 0
+    total_checks = 0
+    
+    grouped = df.groupby(['season', 'week'])
+    
+    for (season, week), group in grouped:
+        if len(group) <= 3: continue
+        total_checks += 1
         
-    # Stage 2: Bottom 3
-    bottom_3 = df_sorted.tail(3).copy()
+        # Determine weight
+        if week <= 4: w = w_early
+        elif week <= 8: w = w_mid
+        else: w = w_late
+        
+        scores = group['score'].values
+        votes = group['est_vote_share'].values
+        names = group['name'].values
+        
+        # Normalize
+        s_max = np.max(scores)
+        if s_max == 0: s_max = 1
+        s_norm = scores / s_max
+        
+        v_sum = np.sum(votes)
+        if v_sum == 0: v_sum = 1
+        v_norm = votes / v_sum # Share
+        
+        # Combined Score
+        # New Mechanism: score * w + vote * (1-w)
+        combined = s_norm * w + v_norm * (1 - w)
+        
+        # Identify Bottom 3 (At Risk)
+        # combined score: Higher is better. Bottom 3 are lowest.
+        sorted_idx = np.argsort(combined) # Ascending
+        bottom_3_idx = sorted_idx[:3]
+        
+        # Check Fairness: Is a Top Scorer (Top 3 in Score) in Bottom 3?
+        score_ranks = rankdata_min(-scores) # 1 is best
+        top_scorers_idx = np.where(score_ranks <= 3)[0]
+        
+        for idx in bottom_3_idx:
+            if idx in top_scorers_idx:
+                fairness_penalties += 1
+                
+        # Check Retention: Is a Top Voter (Top 3 in Votes) in Bottom 3?
+        vote_ranks = rankdata_min(-votes) # 1 is best
+        top_voters_idx = np.where(vote_ranks <= 3)[0]
+        
+        for idx in bottom_3_idx:
+            if idx in top_voters_idx:
+                retention_penalties += 1
+                
+    # Normalize metrics (Lower is better)
+    fairness_score = fairness_penalties / total_checks if total_checks > 0 else 0
+    retention_score = retention_penalties / total_checks if total_checks > 0 else 0
     
-    # Calculate "Technical Safety Score" = Current Judge * 0.7 + Hist Judge Avg * 0.3
-    # Simplify: Just use current judge score for now as history needs state tracking
-    # Or simulate history proxy
-    bottom_3['tech_safe_score'] = bottom_3['norm_judge_score'] 
-    
-    # 1. Eliminate Lowest Tech Safe Score directly
-    bottom_3 = bottom_3.sort_values('tech_safe_score', ascending=True)
-    direct_elim = bottom_3.iloc[0] # Lowest tech score
-    
-    eliminated_name = direct_elim['name']
-    return eliminated_name, df_sorted
+    return fairness_score, retention_score
 
-def main():
-    df = pd.read_csv('e:/美赛/Q1_estimated_fan_votes_optimized.csv')
+def optimize_weights(df):
+    print("Starting Multi-Objective Optimization for Weights...")
     
-    # Simulation Results
+    best_weights = None
+    best_combined_score = float('inf')
+    
     results = []
     
-    # Metrics
-    tech_fairness = [] # Rank of eliminated person in Judge Scores (Higher rank eliminated = Unfair)
-    fan_survival = [] # Rank of eliminated person in Fan Votes
-    controversy_saved = 0
+    # Grid Search
+    w_range = [0.3, 0.4, 0.5, 0.6, 0.7]
     
-    seasons = df['season'].unique()
-    for s in seasons:
-        s_data = df[df['season'] == s]
-        weeks = s_data['week'].unique()
-        max_w = np.max(weeks)
-        
-        for w in weeks:
-            w_data = s_data[s_data['week'] == w]
-            if len(w_data) <= 3: continue
-            
-            # Run New System
-            elim_name, sorted_df = simulate_elimination(w_data, w, max_w)
-            
-            # Analyze Fairness
-            # Get the eliminated person's ranks
-            # Use .values to ensure we don't have index alignment issues
-            judge_ranks = rankdata_min(-w_data['score'].values)
-            fan_ranks = rankdata_min(-w_data['est_vote_share'].values)
-            
-            # Find index of eliminated person in the local w_data
-            # w_data is a slice, so reset index to match 0..n of ranks arrays
-            w_data_reset = w_data.reset_index(drop=True)
-            elim_idx_local = w_data_reset[w_data_reset['name'] == elim_name].index[0]
-            
-            p_row = w_data_reset.iloc[elim_idx_local]
-            judge_rank = judge_ranks[elim_idx_local]
-            fan_rank = fan_ranks[elim_idx_local]
-            
-            tech_fairness.append(judge_rank) # We want this to be high (meaning they were bad at tech)
-            fan_survival.append(fan_rank)
-            
-            # Check Controversy (e.g. Jerry Rice)
-            if elim_name in ['Jerry Rice', 'Bobby Bones']:
-                controversy_saved += 1
+    for w1 in w_range: # Early
+        for w2 in w_range: # Mid
+            for w3 in w_range: # Late
+                # Constraints: Typically technical importance grows. w1 <= w2 <= w3
+                if not (w1 <= w2 <= w3): continue
                 
-            results.append({
-                'season': s,
-                'week': w,
-                'eliminated': elim_name,
-                'judge_rank': judge_rank,
-                'fan_rank': fan_rank,
-                'actual_status': p_row['status']
-            })
-            
-    res_df = pd.DataFrame(results)
+                weights = [w1, w2, w3]
+                f_score, r_score = simulate_mechanism(df, weights)
+                
+                # Composite Objective: Minimize (Fairness Penalty + Retention Penalty)
+                # We might weight Fairness higher for "Integrity"
+                final_score = 1.0 * f_score + 0.8 * r_score
+                
+                results.append({
+                    'Weights': weights,
+                    'Fairness_Penalty': f_score,
+                    'Retention_Penalty': r_score,
+                    'Final_Score': final_score
+                })
+                
+                if final_score < best_combined_score:
+                    best_combined_score = final_score
+                    best_weights = weights
+                    
+    results_df = pd.DataFrame(results).sort_values('Final_Score')
+    print("\nTop 5 Weight Configurations:")
+    print(results_df.head(5))
     
-    # Calculate Metrics
-    # Fairness: Avg Judge Rank of Eliminated (Closer to N is better, meaning they were actually worst)
-    # But N varies. Let's use normalized rank (1 is best, 0 is worst).
-    # Actually, simpler: How often do we eliminate someone in the Top 3 Judge Scores?
-    bad_eliminations = len(res_df[res_df['judge_rank'] <= 3])
-    total_elim = len(res_df)
+    print(f"\nBest Weights Found: {best_weights}")
+    return best_weights
+
+def main():
+    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    df = load_data(file_path)
+    if df is None: return
     
-    print("--- New System Evaluation (Dynamic Weight + Bottom 3 Tech Elim) ---")
-    print(f"Total Simulations: {total_elim}")
-    print(f"Fairness Violation (Eliminated Top 3 Tech): {bad_eliminations} ({bad_eliminations/total_elim:.2%})")
-    print(f"Avg Fan Rank of Eliminated: {np.mean(res_df['fan_rank']):.2f} (Higher means less popular)")
+    best_w = optimize_weights(df)
     
-    # Compare with Old System (Ranking Method) - From Q2 results (approx)
-    # In Q2 we found Ranking method protects popular people well.
-    # Here, by enforcing Tech Elim on Bottom 3, we might eliminate popular people if they bomb the judges.
-    
-    # Save
-    res_df.to_csv('e:/美赛/Q4_simulation_results.csv', index=False)
-    print("Simulation results saved to Q4_simulation_results.csv")
+    print("\n--- Recommendation ---")
+    print(f"Adopt Dynamic Weighting: Early={best_w[0]}, Mid={best_w[1]}, Late={best_w[2]}")
+    print("Rationale: This combination minimizes the risk of Top Scorers AND Top Vote Getters falling into the Bottom 3.")
+    print("Implementation: Use 'Judge Save' on the Bottom 3 to further reduce the Fairness Penalty to near zero.")
 
 if __name__ == "__main__":
     main()

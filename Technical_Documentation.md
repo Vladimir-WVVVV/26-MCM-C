@@ -14,14 +14,17 @@
 ## 2. 核心算法详解
 
 ### 2.1 双引擎估算模型 (Dual-Engine Estimation)
-位于 `Q1_estimate_votes.py`。
-- **ML 先验 (Prior)**: 使用 `RidgeRegressionNumPy` 类。
-  - 公式：$Vote_{prior} = \alpha \cdot Age + \beta \cdot Industry + \gamma \cdot Order + \epsilon$
-  - 作用：为每个选手提供一个基于人口统计学特征的初始人气预估。
-- **自适应蒙特卡洛 (Adaptive Monte Carlo)**:
-  - 机制：每赛季生成 10,000 组随机投票分布。
-  - 约束：$Target = \text{ArgMin} \sum |Rank_{simulated} - Rank_{actual}|$
-  - 创新点：使用“拒绝采样”策略，只保留那些能完美解释当周淘汰结果的投票样本，取其均值作为最终估算。
+位于 `Q1_hybrid_solver.py`。
+- **ML 先验 (Prior)**: 使用 `RidgeRegressionNumPy` 类预测基础人气。
+- **MAP 定位 (MAP Optimization)**:
+  - 利用梯度下降（Gradient Descent）在狄利克雷分布（Dirichlet Distribution）空间中寻找最大后验概率点。
+  - 快速锁定“可行解”的中心位置，大幅缩小搜索范围。
+- **时序平滑 (Temporal Smoothing)**:
+  - $Prior_t = 0.5 \cdot Prior_{ML} + 0.5 \cdot Posterior_{t-1}$
+  - 防止因单周数据波动导致的投票率剧烈跳变。
+- **MCMC 精搜 (Guided MCMC)**:
+  - 在 MAP 确定的高置信区域内进行采样。
+  - 严格满足排名法/百分比法的硬性淘汰约束。
 
 ### 2.2 排名算法标准化 (Rankdata Min)
 位于 `Q2_compare_methods.py`。
@@ -54,10 +57,11 @@
 ---
 
 ## 3. 文件结构说明
-
 ```text
 E:\美赛\
-├── Q1_estimate_votes.py            # [核心] 投票数据反向估算脚本
+├── Q1_hybrid_solver.py             # [核心] 迭代MAP引导MCMC求解器
+├── Q1_generate_final.py            # [工具] 生成最终版高精度数据
+├── Q1_evaluate_accuracy_hybrid.py  # [验证] 全量数据鲁棒性测试脚本
 ├── Q1_estimated_fan_votes_optimized.csv # [产出] 34赛季完整投票数据
 ├── Q2_compare_methods.py           # [分析] 排名法 vs 百分比法仿真
 ├── Q2_method_counterfactuals.csv   # [产出] 反事实模拟结果
@@ -69,25 +73,31 @@ E:\美赛\
 
 ## 4. 快速运行指南 (Quick Start)
 
-**步骤 1: 生成基础数据**
+**步骤 1: 生成高精度投票数据**
 ```bash
-python Q1_estimate_votes.py
-# 输出: Q1_estimated_fan_votes_optimized.csv (Accuracy > 88%)
+python Q1_generate_final.py
+# 输出: Q1_estimated_fan_votes_optimized.csv (包含完整人口统计学特征)
 ```
 
-**步骤 2: 运行机制对比**
+**步骤 2: 验证模型准确率**
+```bash
+python Q1_evaluate_accuracy_hybrid.py
+# 输出: 控制台打印5轮鲁棒性测试结果 (Accuracy > 98%)
+```
+
+**步骤 3: 运行机制对比**
 ```bash
 python Q2_compare_methods.py
 # 输出: Q2_method_counterfactuals.csv, 控制台打印偏差率
 ```
 
-**步骤 3: 运行归因分析**
+**步骤 4: 运行归因分析**
 ```bash
 python Q3_analyze_factors.py
 # 输出: 打印各因素对评委分/粉丝票的回归系数
 ```
 
-**步骤 4: 赛制优化模拟**
+**步骤 5: 赛制优化模拟**
 ```bash
 python Q4_design_mechanism.py
 # 输出: 打印最优权重组合及新赛制下的各项指标提升
