@@ -92,7 +92,7 @@ def analyze_hybrid(df, features, target_col, target_name):
     return res_df
 
 def main():
-    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    file_path = 'Q1_estimated_fan_votes_optimized.csv'
     df = load_data(file_path)
     if df is None: return
     

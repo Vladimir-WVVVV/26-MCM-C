@@ -176,7 +176,7 @@ def analyze_controversy(df, comparison_results):
                     print(f"    *** METHOD MATTERS HERE! ***")
 
 def main():
-    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    file_path = 'Q1_estimated_fan_votes_optimized.csv'
     df = load_data(file_path)
     if df is None: return
     
@@ -184,7 +184,7 @@ def main():
     comp_df, bias_stats = simulate_methods(df)
     
     # Save Results
-    comp_df.to_csv('e:/美赛/Q2_method_counterfactuals.csv', index=False)
+    comp_df.to_csv('Q2_method_counterfactuals.csv', index=False)
     
     # Print Summary
     print("\n--- Method Bias Analysis ---")

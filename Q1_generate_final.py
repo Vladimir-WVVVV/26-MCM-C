@@ -4,7 +4,7 @@ import os
 from Q1_hybrid_solver import HybridSolver
 
 def load_data():
-    file_path = 'e:/美赛/2026_MCM_Problem_C_Data.csv'
+    file_path = '2026_MCM_Problem_C_Data.csv'
     if not os.path.exists(file_path):
         print(f"Error: Data file not found at {file_path}")
         return None
@@ -133,7 +133,7 @@ def generate_final_csv():
             
     # Save to CSV
     output_df = pd.DataFrame(results)
-    output_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
+    output_path = 'Q1_estimated_fan_votes_optimized.csv'
     output_df.to_csv(output_path, index=False)
     print(f"Successfully saved {len(output_df)} rows to {output_path}")
 

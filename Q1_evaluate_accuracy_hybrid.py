@@ -8,7 +8,7 @@ import sys
 from Q1_hybrid_solver import HybridSolver
 
 def load_data():
-    file_path = 'e:/美赛/2026_MCM_Problem_C_Data.csv'
+    file_path = '2026_MCM_Problem_C_Data.csv'
     if not os.path.exists(file_path):
         print(f"Error: Data file not found at {file_path}")
         return None
@@ -230,7 +230,7 @@ def calculate_accuracy():
     max_acc = np.max(accuracies)
     std_acc = np.std(accuracies)
     
-    with open('e:/美赛/accuracy_report.txt', 'w') as f:
+    with open('accuracy_report.txt', 'w') as f:
         f.write("="*50 + "\n")
         f.write(f"Final Robustness Evaluation Results ({num_trials} Trials)\n")
         f.write("="*50 + "\n")
