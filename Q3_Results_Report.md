@@ -8,6 +8,8 @@
 *   评委模型：$Score \sim Age + Industry + Gender$
 *   粉丝模型：$VoteShare \sim Age + Age^2 + Industry + Gender$
 
+![Q3 Factor Analysis](visualization_results/Q3_Factor_Analysis.png)
+
 ## 3. 核心发现
 
 ### A. 年龄悖论 (The Age Paradox)

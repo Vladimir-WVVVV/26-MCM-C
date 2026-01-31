@@ -18,9 +18,14 @@
 *   **平均准确率**：**98.21%**
     *   基于 335 个历史周次的全量回测。
     *   通过 5 轮鲁棒性测试，准确率波动范围仅为 [97.6%, 98.5%]，证明了算法的极高稳定性。
+
+![Q1 Accuracy Distribution](visualization_results/Q1_Accuracy_Distribution.png)
+
 *   **输出文件**：`Q1_estimated_fan_votes_optimized.csv`
     *   包含 34 个赛季所有选手的估算得票率。
     *   该数据集已成为 Q2-Q4 分析的**唯一事实来源 (Single Source of Truth)**。
+
+![Q1 Fan Vote Distribution](visualization_results/Q1_Vote_Distribution.png)
 
 ## 4. 关键突破
 *   **零依赖设计**：全套算法仅依赖 `numpy` 和 `pandas`，无需安装复杂的黑盒优化库，便于团队复现和移植。

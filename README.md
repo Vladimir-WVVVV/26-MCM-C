@@ -27,6 +27,7 @@
 | **`Q2_compare_methods.py`** | **[Task 2]** 排名法 vs 百分比法仿真脚本。包含反事实模拟、偏向性分析和争议案例复盘。 |
 | **`Q3_analyze_factors.py`** | **[Task 3]** 归因分析脚本。使用混合非线性模型量化年龄、行业对评委分/粉丝票的影响。 |
 | **`Q4_design_mechanism.py`** | **[Task 4]** 赛制设计脚本。实现多目标参数寻优，寻找最佳的动态权重组合。 |
+| **`generate_charts.py`** | **[Viz]** 自动化绘图脚本。生成 Q1-Q4 的分析图表（保存在 `visualization_results/`）。 |
 
 ### 数据文件 (Data Files)
 | 文件名 | 描述 |

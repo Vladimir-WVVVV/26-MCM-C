@@ -11,6 +11,8 @@
 *   **差异率 (Disagreement Rate)**：**17.91%**
     *   这意味着在约 18% 的淘汰周次中，如果改变计分规则，被淘汰的人就会改变。赛制决定命运！
 
+![Q2 Method Comparison](visualization_results/Q2_Method_Comparison.png)
+
 *   **公平性与保护力分析**：
     *   **评委偏好保护 (Judge Favorites)**：
         *   **Ranking Method**: 96.5% 存活率（更尊重技术）

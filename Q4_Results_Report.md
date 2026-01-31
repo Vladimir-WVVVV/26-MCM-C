@@ -8,6 +8,8 @@
     *   升级为 **Step=0.05** 的精细化全域搜索。
     *   构建了包含“误杀率”、“留存率”、“悬念度”的综合损失函数。
 
+![Q4 Optimization Landscape](visualization_results/Q4_Optimization_Landscape.png)
+
 ## 3. 颠覆性发现：粉丝中心论 (Fan-Centric Optimality)
 我们的模型推翻了传统的“50/50平衡论”。数据证明，为了节目整体利益，**必须赋予粉丝更大的话语权**。
 
