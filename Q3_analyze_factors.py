@@ -1,6 +1,13 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+Q1_OUTPUT_PATH = Path("Q1_estimated_fan_votes_optimized.csv")
+# Q1_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q1_estimated_fan_votes_optimized.csv")
 
 def load_data(file_path):
     if not os.path.exists(file_path):
@@ -92,7 +99,7 @@ def analyze_hybrid(df, features, target_col, target_name):
     return res_df
 
 def main():
-    file_path = 'Q1_estimated_fan_votes_optimized.csv'
+    file_path = Q1_OUTPUT_PATH
     df = load_data(file_path)
     if df is None: return
     

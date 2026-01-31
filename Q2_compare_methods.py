@@ -1,6 +1,16 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+Q1_OUTPUT_PATH = Path("Q1_estimated_fan_votes_optimized.csv")
+# Q1_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q1_estimated_fan_votes_optimized.csv")
+
+Q2_OUTPUT_PATH = Path("Q2_method_counterfactuals.csv")
+# Q2_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q2_method_counterfactuals.csv")
 
 # Helper function for ranking (Min method: 1, 2, 2, 4)
 def rankdata_min(a):
@@ -176,7 +186,7 @@ def analyze_controversy(df, comparison_results):
                     print(f"    *** METHOD MATTERS HERE! ***")
 
 def main():
-    file_path = 'Q1_estimated_fan_votes_optimized.csv'
+    file_path = Q1_OUTPUT_PATH
     df = load_data(file_path)
     if df is None: return
     
@@ -184,7 +194,9 @@ def main():
     comp_df, bias_stats = simulate_methods(df)
     
     # Save Results
-    comp_df.to_csv('Q2_method_counterfactuals.csv', index=False)
+    if Q2_OUTPUT_PATH.parent != Path("."):
+        os.makedirs(Q2_OUTPUT_PATH.parent, exist_ok=True)
+    comp_df.to_csv(Q2_OUTPUT_PATH, index=False)
     
     # Print Summary
     print("\n--- Method Bias Analysis ---")

@@ -2,13 +2,23 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+from pathlib import Path
+
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+DATA_PATH = Path("2026_MCM_Problem_C_Data.csv")
+# DATA_PATH = Path(r"C:\_Am\Data.csv")
+
+OUT_DIR = Path(".")
+# OUT_DIR = Path(r"C:\_Am\q1_outputs")
 
 # Import HybridSolver from Q1_hybrid_solver
 # Assuming Q1_hybrid_solver.py is in the same directory
 from Q1_hybrid_solver import HybridSolver
 
 def load_data():
-    file_path = '2026_MCM_Problem_C_Data.csv'
+    file_path = DATA_PATH
     if not os.path.exists(file_path):
         print(f"Error: Data file not found at {file_path}")
         return None

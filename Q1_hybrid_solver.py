@@ -1,6 +1,20 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+# Default: Use relative path (works on all machines)
+# Teammate can uncomment/edit absolute path below if needed
+# 默认：使用相对路径（兼容所有机器）
+DATA_PATH = Path("2026_MCM_Problem_C_Data.csv")
+# DATA_PATH = Path(r"C:\_Am\Data.csv")  # Teammate's absolute path
+
+Q1_OUTPUT_PATH = Path("Q1_estimated_fan_votes_optimized.csv")
+# Q1_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q1_estimated_fan_votes_optimized.csv")
+
 # from scipy.optimize import minimize  # Removed to keep zero-dependency
 
 # ==========================================
@@ -238,10 +252,10 @@ class HybridSolver:
 # ==========================================
 
 def main():
-    file_path = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv' # Load existing data to re-run specific weeks
+    file_path = Q1_OUTPUT_PATH # Load existing data to re-run specific weeks
     if not os.path.exists(file_path):
         # Fallback to raw data if optimized not found
-        file_path = 'e:/美赛/2026_MCM_Problem_C_Data.csv'
+        file_path = DATA_PATH
         
     # For demonstration, we simulate a Controversy Case (Bobby Bones S27 Week 5)
     # Or load raw data and run.

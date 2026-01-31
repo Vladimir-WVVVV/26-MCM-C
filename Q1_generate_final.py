@@ -1,10 +1,20 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 from Q1_hybrid_solver import HybridSolver
 
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+DATA_PATH = Path("2026_MCM_Problem_C_Data.csv")
+# DATA_PATH = Path(r"C:\_Am\Data.csv")
+
+Q1_OUTPUT_PATH = Path("Q1_estimated_fan_votes_optimized.csv")
+# Q1_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q1_estimated_fan_votes_optimized.csv")
+
 def load_data():
-    file_path = '2026_MCM_Problem_C_Data.csv'
+    file_path = DATA_PATH
     if not os.path.exists(file_path):
         print(f"Error: Data file not found at {file_path}")
         return None
@@ -133,9 +143,13 @@ def generate_final_csv():
             
     # Save to CSV
     output_df = pd.DataFrame(results)
-    output_path = 'Q1_estimated_fan_votes_optimized.csv'
-    output_df.to_csv(output_path, index=False)
-    print(f"Successfully saved {len(output_df)} rows to {output_path}")
+    
+    # Ensure directory exists if path has parent directory
+    if Q1_OUTPUT_PATH.parent != Path("."):
+        os.makedirs(Q1_OUTPUT_PATH.parent, exist_ok=True)
+        
+    output_df.to_csv(Q1_OUTPUT_PATH, index=False)
+    print(f"Successfully saved {len(output_df)} rows to {Q1_OUTPUT_PATH}")
 
 if __name__ == "__main__":
     generate_final_csv()

@@ -1,6 +1,13 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
+
+# ==========================================
+# Path Configuration (路径配置)
+# ==========================================
+Q1_OUTPUT_PATH = Path("Q1_estimated_fan_votes_optimized.csv")
+# Q1_OUTPUT_PATH = Path(r"C:\_Am\mcm_outputs\Q1_estimated_fan_votes_optimized.csv")
 
 # Helper for ranking
 def rankdata_min(a):
@@ -105,13 +112,20 @@ def optimize_weights(df):
     results = []
     
     # Grid Search
-    w_range = [0.3, 0.4, 0.5, 0.6, 0.7]
+    # w_range = [0.3, 0.4, 0.5, 0.6, 0.7]
+    # Expanded and finer grid for more accurate results
+    w_range = np.round(np.arange(0.1, 0.95, 0.05), 2)
     
+    count = 0
     for w1 in w_range: # Early
         for w2 in w_range: # Mid
             for w3 in w_range: # Late
                 # Constraints: Typically technical importance grows. w1 <= w2 <= w3
                 if not (w1 <= w2 <= w3): continue
+                
+                count += 1
+                if count % 100 == 0:
+                    print(f"Testing config {count}: [{w1}, {w2}, {w3}]", flush=True)
                 
                 weights = [w1, w2, w3]
                 f_score, r_score = simulate_mechanism(df, weights)
@@ -132,14 +146,22 @@ def optimize_weights(df):
                     best_weights = weights
                     
     results_df = pd.DataFrame(results).sort_values('Final_Score')
-    print("\nTop 5 Weight Configurations:")
-    print(results_df.head(5))
+    
+    # Save detailed optimization results
+    opt_output_path = Path("Q4_optimization_detailed_results.csv")
+    if opt_output_path.parent != Path("."):
+        os.makedirs(opt_output_path.parent, exist_ok=True)
+    results_df.to_csv(opt_output_path, index=False)
+    print(f"Saved all {len(results_df)} tested configurations to {opt_output_path}")
+
+    print("\nTop 10 Weight Configurations:")
+    print(results_df.head(10))
     
     print(f"\nBest Weights Found: {best_weights}")
     return best_weights
 
 def main():
-    file_path = 'Q1_estimated_fan_votes_optimized.csv'
+    file_path = Q1_OUTPUT_PATH
     df = load_data(file_path)
     if df is None: return
     
