@@ -17,15 +17,15 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 3,2,Jerry Springer,Shanna Moakler,True,10
 3,3,Jerry Springer,Harry Hamlin,True,9
 3,4,Jerry Springer,Vivica A. Fox,True,8
-3,5,Sara Evans,Willa Ford,True,7
+3,5,Joey Lawrence,Willa Ford,True,7
 3,6,Sara Evans,Sara Evans,False,6
 3,7,Jerry Springer,Jerry Springer,False,6
 3,8,Monique Coleman,Monique Coleman,False,5
 3,9,Sara Evans,Sara Evans,False,4
 3,10,Sara Evans,Sara Evans,False,4
 4,1,Billy Ray Cyrus,Billy Ray Cyrus,False,11
-4,2,Clyde Drexler,Paulina Porizkova,True,11
-4,3,John Ratzenberger,Shandi Finnessey,True,10
+4,2,Paulina Porizkova,Paulina Porizkova,False,11
+4,3,Shandi Finnessey,Shandi Finnessey,False,10
 4,4,Leeza Gibbons,Leeza Gibbons,False,9
 4,5,Clyde Drexler,Clyde Drexler,False,8
 4,6,Heather Mills,Heather Mills,False,7
@@ -38,12 +38,12 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 5,3,Wayne Newton,Wayne Newton,False,10
 5,4,Floyd Mayweather Jr. ,Floyd Mayweather Jr. ,False,9
 5,5,Mark Cuban,Mark Cuban,False,8
-5,6,Sabrina Bryan,Sabrina Bryan,False,7
+5,6,Jane Seymour,Sabrina Bryan,True,7
 5,7,Jane Seymour,Jane Seymour,False,6
 5,8,Cameron Mathison,Cameron Mathison,False,5
 5,9,Jennie Garth,Jennie Garth,False,4
 5,10,Marie Osmond,Marie Osmond,False,3
-6,1,Adam Carolla,Adam Carolla,False,12
+6,1,Monica Seles,Monica Seles,False,12
 6,2,Monica Seles,Monica Seles,False,12
 6,3,Marissa Jaret Winokur,Steve Guttenberg,True,10
 6,4,Adam Carolla,Adam Carolla,False,9
@@ -54,7 +54,7 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 6,9,Marissa Jaret Winokur,Marissa Jaret Winokur,False,4
 6,10,Cristian de la Fuente,Cristian de la Fuente,False,3
 7,1,Jeffrey Ross,Jeffrey Ross,False,13
-7,2,Cloris Leachman,Kim Kardashian,True,11
+7,2,Kim Kardashian,Kim Kardashian,False,11
 7,3,Misty May-Treanor,Misty May-Treanor,False,10
 7,4,Rocco DiSpirito,Rocco DiSpirito,False,10
 7,5,Cloris Leachman,Toni Braxton,True,9
@@ -63,8 +63,8 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 7,8,Maurice Greene,Maurice Greene,False,6
 7,9,Cody Linley,Cody Linley,False,5
 7,10,Misty May-Treanor,Misty May-Treanor,False,4
-8,1,Steve Wozniak,Steve Wozniak,False,13
-8,2,Belinda Carlisle,Belinda Carlisle,False,13
+8,1,Ty Murray,Steve Wozniak,True,13
+8,2,Steve Wozniak,Belinda Carlisle,True,13
 8,3,Denise Richards,Denise Richards,False,12
 8,4,Steve Wozniak,Steve Wozniak,False,11
 8,5,Lawrence Taylor,David Alan Grier,True,9
@@ -74,9 +74,9 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 8,9,Lil' Kim,Lil' Kim,False,5
 8,10,Ty Murray,Ty Murray,False,4
 8,11,Melissa Rycroft,Melissa Rycroft,False,3
-9,1,Ashley Hamiliton,Ashley Hamiliton,False,16
+9,1,Macy Gray,Macy Gray,False,16
 9,2,Kathy Ireland,Kathy Ireland,False,14
-9,3,Debi Mazar,Debi Mazar,False,13
+9,3,Michael Irvin,Debi Mazar,True,13
 9,4,Chuck Liddell,Chuck Liddell,False,12
 9,5,Natalie Coughlin,Natalie Coughlin,False,11
 9,6,Louie Vito,Louie Vito,False,10
@@ -90,7 +90,7 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 10,4,Aiden Turner,Aiden Turner,False,9
 10,5,Kate Gosselin,Kate Gosselin,False,8
 10,6,Jake Pavelka,Jake Pavelka,False,7
-10,7,Pamela Anderson,Pamela Anderson,False,6
+10,7,Niecy Nash,Pamela Anderson,True,6
 10,8,Niecy Nash,Niecy Nash,False,5
 10,9,Chad Ochocinco,Chad Ochocinco,False,4
 10,10,Evan Lysacek,Evan Lysacek,False,3
@@ -99,8 +99,8 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 11,3,Margaret Cho,Margaret Cho,False,10
 11,4,The Situation,The Situation,False,9
 11,5,Florence Henderson,Florence Henderson,False,8
-11,6,Jennifer Grey,Audrina Patridge,True,7
-11,7,Rick Fox,Rick Fox,False,6
+11,6,Bristol Palin,Audrina Patridge,True,7
+11,7,Bristol Palin,Rick Fox,True,6
 11,8,Kurt Warner,Kurt Warner,False,5
 11,9,Brandy,Brandy,False,4
 11,10,Bristol Palin,Bristol Palin,False,3
@@ -115,16 +115,16 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 12,9,Ralph Macchio,Ralph Macchio,False,4
 12,10,Kirstie Alley,Kirstie Alley,False,3
 13,1,Metta World Peace (Ron),Metta World Peace (Ron),False,12
-13,2,David Arquette,Elisabetta Canalis,True,11
-13,3,Nancy Grace,Kristin Cavallari,True,10
+13,2,Carson Kressley,Elisabetta Canalis,True,11
+13,3,Carson Kressley,Kristin Cavallari,True,10
 13,4,Chynna Phillips,Chynna Phillips,False,9
 13,5,Carson Kressley,Carson Kressley,False,8
 13,6,Chaz Bono,Chaz Bono,False,7
 13,7,David Arquette,David Arquette,False,6
 13,8,Nancy Grace,Nancy Grace,False,5
 13,9,Hope Solo,Hope Solo,False,4
-13,10,Ricki Lake,Ricki Lake,False,3
-14,1,Melissa Gilbert,Melissa Gilbert,False,12
+13,10,J.R. Martinez,J.R. Martinez,False,3
+14,1,Gavin DeGraw,Gavin DeGraw,False,12
 14,2,Martina Navratilova,Martina Navratilova,False,12
 14,3,Jack Wagner,Jack Wagner,False,11
 14,4,Sherri Sheperd,Sherri Sheperd,False,10
@@ -132,18 +132,18 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 14,6,Gladys Knight,Gladys Knight,False,8
 14,7,Jaleel White,Jaleel White,False,7
 14,8,Melissa Gilbert,Melissa Gilbert,False,6
-14,9,Katherine Jenkins,Maria Menounos,True,4
-14,10,Katherine Jenkins,Katherine Jenkins,False,3
+14,9,Donald Driver,Maria Menounos,True,4
+14,10,Donald Driver,Donald Driver,False,3
 15,1,Pamela Anderson,Pamela Anderson,False,13
 15,2,Bristol Palin,Joey Fatone,True,12
 15,3,Drew Lachey,Drew Lachey,False,11
 15,4,Bristol Palin,Bristol Palin,False,9
 15,5,Kelly Monaco,Kelly Monaco,False,8
-15,6,Kelly Monaco,Sabrina Bryan,True,8
+15,6,Emmitt Smith,Sabrina Bryan,True,8
 15,7,Kirstie Alley,Kirstie Alley,False,7
 15,8,Kirstie Alley,Kirstie Alley,False,7
 15,9,Emmitt Smith,Emmitt Smith,False,5
-15,10,Kelly Monaco,Kelly Monaco,False,3
+15,10,Melissa Rycroft,Shawn Johnson,True,3
 16,1,D. L. Hughley,D. L. Hughley,False,12
 16,2,D. L. Hughley,D. L. Hughley,False,12
 16,3,Wynonna Judd,Wynonna Judd,False,12
@@ -158,7 +158,7 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 17,2,Keyshawn Johnson,Keyshawn Johnson,False,12
 17,3,Bill Nye,Bill Nye,False,11
 17,4,Valerie Harper,Valerie Harper,False,10
-17,5,Elizabeth Berkley Lauren,Christina Milian,True,9
+17,5,Bill Engvall,Christina Milian,True,9
 17,6,Bill Engvall,Bill Engvall,False,8
 17,7,Bill Engvall,"Nicole ""Snooki"" Polizzi",True,8
 17,8,Brant Daugherty,Brant Daugherty,False,7
@@ -176,10 +176,10 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 18,9,Charlie White,Charlie White,False,6
 18,10,James Maslow,James Maslow,False,5
 19,1,Lolo Jones,Lolo Jones,False,13
-19,2,Michael Waltrip,Tavis Smiley,True,12
+19,2,Tavis Smiley,Tavis Smiley,False,12
 19,3,Randy Couture,Randy Couture,False,11
-19,4,Michael Waltrip,Betsey Johnson,True,10
-19,5,Michael Waltrip,Michael Waltrip,False,9
+19,4,Jonathan Bennett,Betsey Johnson,True,10
+19,5,Tommy Chong,Michael Waltrip,True,9
 19,6,Michael Waltrip,Jonathan Bennett,True,9
 19,7,Antonio Sabato Jr.,Antonio Sabato Jr.,False,8
 19,8,Michael Waltrip,Michael Waltrip,False,7
@@ -187,26 +187,26 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 19,10,Tommy Chong,Tommy Chong,False,5
 19,11,Bethany Mota,Bethany Mota,False,4
 20,1,Redfoo,Redfoo,False,12
-20,2,Noah Galloway,Redfoo,True,12
+20,2,Charlotte McKinney,Redfoo,True,12
 20,3,Charlotte McKinney,Charlotte McKinney,False,11
 20,4,Michael Sam,Michael Sam,False,10
-20,5,Robert Herjavec,Suzanne Somers,True,9
+20,5,Suzanne Somers,Suzanne Somers,False,9
 20,6,Patti LaBelle,Patti LaBelle,False,8
-20,7,Rumer Willis,Willow Shields,True,7
+20,7,Robert Herjavec,Willow Shields,True,7
 20,8,Robert Herjavec,Robert Herjavec,False,6
 20,9,Noah Galloway,Nastia Liukin,True,4
 20,10,Noah Galloway,Noah Galloway,False,3
-21,1,Chaka Khan,Kim Zolciak-Biermann,True,13
+21,1,Kim Zolciak-Biermann,Kim Zolciak-Biermann,False,13
 21,2,Chaka Khan,Chaka Khan,False,13
 21,3,Kim Zolciak-Biermann,Kim Zolciak-Biermann,False,11
 21,4,Gary Busey,Gary Busey,False,11
-21,5,Kim Zolciak-Biermann,Kim Zolciak-Biermann,False,10
+21,5,Paula Deen,Kim Zolciak-Biermann,True,10
 21,6,Paula Deen,Paula Deen,False,10
-21,7,Alexa PenaVega,Hayes Grier,True,9
+21,7,Tamar Braxton,Hayes Grier,True,9
 21,8,Andy Grammer,Andy Grammer,False,8
 21,9,Tamar Braxton,Alexa PenaVega,True,7
 21,10,Tamar Braxton,Tamar Braxton,False,6
-21,11,Tamar Braxton,Tamar Braxton,False,6
+21,11,Carlos PenaVega,Carlos PenaVega,False,6
 22,1,Geraldo Rivera,Geraldo Rivera,False,12
 22,2,Geraldo Rivera,Geraldo Rivera,False,12
 22,3,Mischa Barton,Mischa Barton,False,11
@@ -214,19 +214,19 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 22,5,Antonio Brown,Antonio Brown,False,9
 22,6,Doug Flutie,Doug Flutie,False,9
 22,7,Von Miller,Von Miller,False,8
-22,8,Antonio Brown,Jodie Sweetin,True,6
+22,8,Nyle DiMarco,Jodie Sweetin,True,6
 22,9,Antonio Brown,Antonio Brown,False,5
-22,10,Nyle DiMarco,Ginger Zee,True,3
+22,10,Ginger Zee,Ginger Zee,False,3
 23,1,Rick Perry,Rick Perry,False,13
 23,2,Rick Perry,Jake T. Austin,True,13
 23,3,Rick Perry,Rick Perry,False,12
 23,4,Babyface,Babyface,False,11
-23,5,Ryan Lochte,Ryan Lochte,False,9
+23,5,Amber Rose,Amber Rose,False,9
 23,6,Amber Rose,Amber Rose,False,9
 23,7,Maureen McCormick,Maureen McCormick,False,8
 23,8,Ryan Lochte,Ryan Lochte,False,7
 23,9,Marilu Henner,Marilu Henner,False,6
-23,10,Calvin Johnson Jr.,Terra Jole,True,5
+23,10,Terra Jole,Terra Jole,False,5
 23,11,Jana Kramer,Jana Kramer,False,4
 24,1,Chris Kattan,Chris Kattan,False,12
 24,2,Chris Kattan,Chris Kattan,False,12
@@ -248,26 +248,26 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 25,8,Terrell Owens,Terrell Owens,False,6
 25,9,Victoria Arlen,Victoria Arlen,False,5
 25,10,Drew Scott,Drew Scott,False,4
-26,1,Jamie Anderson,Jamie Anderson,False,10
+26,1,Jamie Anderson,Johnny Damon,True,10
 26,2,Kareem Abdul-Jabbar,Kareem Abdul-Jabbar,False,8
-26,3,Jennie Finch Daigle,Jennie Finch Daigle,False,6
-26,4,Josh Norman,Tonya Harding,True,3
+26,3,Chris Mazdzer,Jennie Finch Daigle,True,6
+26,4,Tonya Harding,Tonya Harding,False,3
 27,1,Nikki Glaser,Nikki Glaser,False,13
 27,2,Danelle Umstead,Danelle Umstead,False,12
 27,3,Nancy McKeon,Nancy McKeon,False,11
-27,4,John Schneider,Tinashe,True,10
+27,4,Juan Pablo Di Pace,Tinashe,True,10
 27,5,Joe Amabile,Joe Amabile,False,9
-27,6,John Schneider,Mary Lou Retton,True,9
-27,7,John Schneider,John Schneider,False,8
+27,6,Mary Lou Retton,Mary Lou Retton,False,9
+27,7,John Schneider,DeMarcus Ware,True,8
 27,8,Joe Amabile,Joe Amabile,False,6
-27,9,Alexis Ren,Bobby Bones,True,4
+27,9,Bobby Bones,Bobby Bones,False,4
 28,1,Lamar Odom,Lamar Odom,False,12
-28,2,Mary Wilson,Mary Wilson,False,12
+28,2,Lamar Odom,Mary Wilson,True,12
 28,3,Ray Lewis,Ray Lewis,False,11
 28,4,Lamar Odom,Ray Lewis,True,11
 28,5,Ray Lewis,Ray Lewis,False,10
 28,6,Ray Lewis,Ray Lewis,False,10
-28,7,Karamo Brown,Karamo Brown,False,9
+28,7,Ray Lewis,Ray Lewis,False,9
 28,8,Kate Flannery,Ray Lewis,True,8
 28,9,Sean Spicer,Ray Lewis,True,7
 28,10,James Van Der Beek,Ray Lewis,True,6
@@ -280,19 +280,19 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 29,6,Veron Davis,Veron Davis,False,11
 29,7,Monica Aldama,Monica Aldama,False,10
 29,8,Chrishell Stause,Chrishell Stause,False,9
-29,9,Jeannie Mai,Jeannie Mai,False,8
+29,9,AJ McLean,Jeannie Mai,True,8
 29,10,Johnny Weir,Johnny Weir,False,7
 29,11,Jeannie Mai,Jeannie Mai,False,5
 30,1,Martin Kove,Martin Kove,False,15
 30,2,Martin Kove,Martin Kove,False,15
 30,3,Christine Chiu,Christine Chiu,False,14
-30,4,Matt James,Matt James,False,13
-30,5,Melanie C,Melanie C,False,11
+30,4,Matt James,Brian Austin Green,True,13
+30,5,Cody Rigsby,Melanie C,True,11
 30,6,Kenya Moore,Kenya Moore,False,10
 30,7,"Mike ""The Miz"" Mizanin","Mike ""The Miz"" Mizanin",False,9
 30,8,Jimmie Allen,Jimmie Allen,False,8
 30,9,Melora Hardin,Suni Lee,True,6
-30,10,Amanda Kloots,JoJo Siwa,True,4
+30,10,Amanda Kloots,Amanda Kloots,False,4
 31,1,Jason Lewis,Jason Lewis,False,16
 31,2,Teresa Giudice,Teresa Giudice,False,15
 31,3,Cheryl Ladd,Cheryl Ladd,False,14
@@ -322,15 +322,15 @@ season,week,ranking_eliminated,pct_eliminated,disagree,candidates
 33,6,Jenn Tran,Jenn Tran,False,7
 33,7,Dwight Howard ,Dwight Howard ,False,6
 33,8,Stephen Nedoroscik,Stephen Nedoroscik,False,5
-33,9,Danny Amendola,Stephen Nedoroscik,True,5
+33,9,Ilona Maher,Ilona Maher,False,5
 34,1,Corey Feldman,Corey Feldman,False,14
 34,2,Corey Feldman,Corey Feldman,False,14
 34,3,Lauren Jauregui,Lauren Jauregui,False,12
 34,4,Hilaria Baldwin,Hilaria Baldwin,False,11
-34,5,Elaine Hendrix,Elaine Hendrix,False,10
+34,5,Jen Affleck,Andy Richter,True,10
 34,6,Scott Hoying,Scott Hoying,False,10
 34,7,Jen Affleck,Jen Affleck,False,9
 34,8,Danielle Fishel,Danielle Fishel,False,8
 34,9,Andy Richter,Andy Richter,False,7
 34,10,Whitney Leavitt,Whitney Leavitt,False,6
-34,11,Robert Irwin,Robert Irwin,False,5
+34,11,Elaine Hendrix,Alix Earle,True,5
