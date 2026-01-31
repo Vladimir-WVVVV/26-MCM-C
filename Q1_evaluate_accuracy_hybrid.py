@@ -218,21 +218,12 @@ def calculate_accuracy():
     num_trials = 5
     accuracies = []
     
-    # Open log file
-    log_file = open('e:/美赛/debug_log.txt', 'w')
-    
     for trial_id in range(num_trials):
         print(f"Running Trial {trial_id+1}...", flush=True)
-        log_file.write(f"Trial {trial_id+1} started\n")
-        log_file.flush()
         
-        acc, corr, tot = run_single_trial(trial_id, df, log_file)
+        acc, corr, tot = run_single_trial(trial_id, df, log_file=None)
         accuracies.append(acc)
         print(f"Trial {trial_id+1} Accuracy: {acc:.4%}", flush=True)
-        log_file.write(f"Trial {trial_id+1} Accuracy: {acc:.4%}\n")
-        log_file.flush()
-        
-    log_file.close()
         
     avg_acc = np.mean(accuracies)
     min_acc = np.min(accuracies)
