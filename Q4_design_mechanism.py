@@ -1,192 +1,177 @@
 import pandas as pd
 import numpy as np
-import os
 
 def rankdata_min(a):
-    """
-    Standard competition ranking (1 2 2 4).
-    Lower rank is better.
-    Input a is 'higher is better' (like score or votes).
-    """
+    a = np.array(a)
     n = len(a)
-    ranks = np.zeros(n, dtype=int)
+    sort_indices = np.argsort(a) # Ascending
+    ranks = np.empty(n, dtype=int)
+    current_rank = 1
     for i in range(n):
-        rank = 1
-        for j in range(n):
-            if a[j] > a[i]:
-                rank += 1
-        ranks[i] = rank
+        if i > 0 and a[sort_indices[i]] == a[sort_indices[i-1]]:
+            # Same rank as previous
+            ranks[sort_indices[i]] = ranks[sort_indices[i-1]]
+        else:
+            # Rank is i+1 (1-based)
+            ranks[sort_indices[i]] = i + 1
     return ranks
 
-def calculate_metrics(df_week, method_name):
+def calculate_new_system_score(df_week, week_num, max_weeks):
     """
-    Simulate elimination for a single week and return the name of the eliminated participant.
+    Proposed Mechanism: Dynamic Weight + Two-Stage Elimination
+    
+    Stage 1: Dynamic Weight
+    - Early (1-4): w=0.4 (Fan focus)
+    - Mid (5-8): w=0.5 (Balanced)
+    - Late (>8): w=0.6 (Technique focus)
+    
+    Standardization:
+    - Score: (Score - 1) / 9  (Assuming max score per judge is 10, total avg score used here)
+    - Vote: Vote Share (Already 0-1) -> Scaled to Max? No, just use share or relative to max.
+      Let's use Vote / Max_Vote_in_Week to make it comparable to Score [0,1].
     """
-    scores = df_week['judge_score'].values
+    scores = df_week['score'].values
     votes = df_week['est_vote_share'].values
     names = df_week['name'].values
+    n = len(scores)
     
-    n = len(names)
-    if n <= 1:
-        return None, None
-
-    # 1. Ranking Method
-    if method_name == 'Ranking':
-        judge_ranks = rankdata_min(scores)
-        fan_ranks = rankdata_min(votes)
-        total_ranks = judge_ranks + fan_ranks
-        # Tie-breaker: Fan Votes (lower rank is better, so higher vote share is better)
-        # We want to eliminate MAX total_rank.
-        # If tie, eliminate the one with WORSE fan rank (Higher number).
-        # Metric = total_ranks + (fan_ranks / 1000.0)
-        metric = total_ranks + (fan_ranks / 1000.0)
-        elim_idx = np.argmax(metric)
-        return names[elim_idx], metric
-
-    # 2. Percentage Method
-    elif method_name == 'Percentage':
-        # Normalize scores to %
-        if np.sum(scores) > 0:
-            score_share = scores / np.sum(scores)
-        else:
-            score_share = np.zeros(n)
+    # Determine Weight w
+    if week_num <= 4:
+        w = 0.4
+    elif week_num <= 8:
+        w = 0.5
+    else:
+        w = 0.6
         
-        # Combined = 0.5 * Score% + 0.5 * Vote%
-        combined = 0.5 * score_share + 0.5 * votes
-        # Eliminate MIN combined
-        elim_idx = np.argmin(combined)
-        return names[elim_idx], combined
+    # Standardize Scores (Assume score is sum of 3 or 4 judges, need to normalize to 0-1)
+    # Max possible score: usually 30 or 40. Let's use Min-Max relative to current week to be safe, 
+    # or absolute if we know the scale. Let's use Min-Max of the week to handle different judge counts.
+    if np.max(scores) > np.min(scores):
+        norm_scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores))
+    else:
+        norm_scores = np.zeros(n) + 0.5
+        
+    # Standardize Votes (Relative to Max Share)
+    if np.max(votes) > 0:
+        norm_votes = votes / np.max(votes)
+    else:
+        norm_votes = np.zeros(n)
+        
+    # Combined Score (Stage 1)
+    combined = norm_scores * w + norm_votes * (1 - w)
+    
+    return combined, norm_scores
 
-    # 3. New Mechanism: Percentage + Judge Save
-    elif method_name == 'New_Mechanism':
-        # Same combined score as Percentage
-        if np.sum(scores) > 0:
-            score_share = scores / np.sum(scores)
-        else:
-            score_share = np.zeros(n)
-        combined = 0.5 * score_share + 0.5 * votes
+def simulate_elimination(df_week, week_num, max_weeks):
+    """
+    Simulate elimination with new system.
+    Stage 2: Bottom 3 -> Technical Safety Score -> Judge Vote
+    """
+    combined, norm_scores = calculate_new_system_score(df_week, week_num, max_weeks)
+    
+    df_week = df_week.copy()
+    df_week['new_score'] = combined
+    df_week['norm_judge_score'] = norm_scores
+    
+    # Sort descending
+    df_sorted = df_week.sort_values('new_score', ascending=False).reset_index(drop=True)
+    
+    if len(df_sorted) < 3:
+        # Just eliminate last
+        eliminated = df_sorted.iloc[-1]['name']
+        return eliminated, df_sorted
         
-        # Find Bottom 2
-        sorted_indices = np.argsort(combined) # Ascending: 0 is lowest
-        bottom_2_indices = sorted_indices[:2]
-        
-        if len(bottom_2_indices) < 2:
-            return names[bottom_2_indices[0]], combined
-            
-        # Judge Save: Judges save the one with higher Judge Score
-        p1_idx = bottom_2_indices[0]
-        p2_idx = bottom_2_indices[1]
-        
-        if scores[p1_idx] > scores[p2_idx]:
-            # Save p1, eliminate p2
-            return names[p2_idx], combined
-        elif scores[p2_idx] > scores[p1_idx]:
-            # Save p2, eliminate p1
-            return names[p1_idx], combined
-        else:
-            # Tie in judge score? Fallback to original combined score (Fan vote decides)
-            # Original combined score: Lower one is eliminated.
-            if combined[p1_idx] < combined[p2_idx]:
-                return names[p1_idx], combined
-            else:
-                return names[p2_idx], combined
-
-    return None, None
+    # Stage 2: Bottom 3
+    bottom_3 = df_sorted.tail(3).copy()
+    
+    # Calculate "Technical Safety Score" = Current Judge * 0.7 + Hist Judge Avg * 0.3
+    # Simplify: Just use current judge score for now as history needs state tracking
+    # Or simulate history proxy
+    bottom_3['tech_safe_score'] = bottom_3['norm_judge_score'] 
+    
+    # 1. Eliminate Lowest Tech Safe Score directly
+    bottom_3 = bottom_3.sort_values('tech_safe_score', ascending=True)
+    direct_elim = bottom_3.iloc[0] # Lowest tech score
+    
+    eliminated_name = direct_elim['name']
+    return eliminated_name, df_sorted
 
 def main():
-    print("Starting Task 4: New Mechanism Design and Evaluation...")
+    df = pd.read_csv('e:/美赛/Q1_estimated_fan_votes_optimized.csv')
     
-    # Load Data
-    votes_file = 'e:/美赛/Q1_estimated_fan_votes_optimized.csv'
-    if not os.path.exists(votes_file):
-        print("Error: Q1_estimated_fan_votes_optimized.csv not found.")
-        return
-        
-    df = pd.read_csv(votes_file)
-    
-    # We need to simulate full seasons.
-    # However, our data is static (estimated votes for the *actual* history).
-    # Changing the elimination mechanism would change who is present in subsequent weeks.
-    # This is a complex counter-factual simulation.
-    # SIMPLIFICATION: We will evaluate "Single Week Fairness".
-    # We check: "If this method was used this week, who would go home?"
-    # And compare the characteristics of the eliminated person.
-    
+    # Simulation Results
     results = []
     
-    methods = ['Ranking', 'Percentage', 'New_Mechanism']
+    # Metrics
+    tech_fairness = [] # Rank of eliminated person in Judge Scores (Higher rank eliminated = Unfair)
+    fan_survival = [] # Rank of eliminated person in Fan Votes
+    controversy_saved = 0
     
-    for season in df['season'].unique():
-        season_data = df[df['season'] == season]
+    seasons = df['season'].unique()
+    for s in seasons:
+        s_data = df[df['season'] == s]
+        weeks = s_data['week'].unique()
+        max_w = np.max(weeks)
         
-        # Filter for weeks where elimination actually happened
-        # (To compare apples to apples)
-        eliminated_weeks = season_data[season_data['status'] == 'Eliminated']['week'].unique()
-        
-        for week in eliminated_weeks:
-            week_data = season_data[season_data['week'] == week]
+        for w in weeks:
+            w_data = s_data[s_data['week'] == w]
+            if len(w_data) <= 3: continue
             
-            # Actual Eliminated
-            actual_elim = week_data[week_data['status'] == 'Eliminated']
-            if len(actual_elim) == 0: continue
-            actual_elim_name = actual_elim.iloc[0]['name']
-            actual_elim_score = actual_elim.iloc[0]['judge_score']
-            actual_elim_vote = actual_elim.iloc[0]['est_vote_share']
+            # Run New System
+            elim_name, sorted_df = simulate_elimination(w_data, w, max_w)
             
-            row_base = {
-                'season': season,
-                'week': week,
-                'actual_eliminated': actual_elim_name,
-                'actual_elim_score': actual_elim_score,
-                'actual_elim_vote': actual_elim_vote
-            }
+            # Analyze Fairness
+            # Get the eliminated person's ranks
+            # Use .values to ensure we don't have index alignment issues
+            judge_ranks = rankdata_min(-w_data['score'].values)
+            fan_ranks = rankdata_min(-w_data['est_vote_share'].values)
             
-            for method in methods:
-                sim_elim_name, _ = calculate_metrics(week_data, method)
+            # Find index of eliminated person in the local w_data
+            # w_data is a slice, so reset index to match 0..n of ranks arrays
+            w_data_reset = w_data.reset_index(drop=True)
+            elim_idx_local = w_data_reset[w_data_reset['name'] == elim_name].index[0]
+            
+            p_row = w_data_reset.iloc[elim_idx_local]
+            judge_rank = judge_ranks[elim_idx_local]
+            fan_rank = fan_ranks[elim_idx_local]
+            
+            tech_fairness.append(judge_rank) # We want this to be high (meaning they were bad at tech)
+            fan_survival.append(fan_rank)
+            
+            # Check Controversy (e.g. Jerry Rice)
+            if elim_name in ['Jerry Rice', 'Bobby Bones']:
+                controversy_saved += 1
                 
-                # Get stats of simulated eliminated person
-                if sim_elim_name:
-                    p_data = week_data[week_data['name'] == sim_elim_name].iloc[0]
-                    
-                    res = row_base.copy()
-                    res['method'] = method
-                    res['sim_eliminated'] = sim_elim_name
-                    res['sim_elim_score'] = p_data['judge_score']
-                    res['sim_elim_vote'] = p_data['est_vote_share']
-                    
-                    # "Unfairness" Metric: Did we eliminate a high scorer?
-                    # Score Rank (1 is best). If we eliminate rank 1, that's bad.
-                    # Normalized Score (0-1)
-                    max_score = week_data['judge_score'].max()
-                    min_score = week_data['judge_score'].min()
-                    if max_score > min_score:
-                        norm_score = (p_data['judge_score'] - min_score) / (max_score - min_score)
-                    else:
-                        norm_score = 0.5 # Neutral
-                    
-                    res['talent_loss_score'] = norm_score # Higher means we lost a better dancer
-                    
-                    results.append(res)
-
+            results.append({
+                'season': s,
+                'week': w,
+                'eliminated': elim_name,
+                'judge_rank': judge_rank,
+                'fan_rank': fan_rank,
+                'actual_status': p_row['status']
+            })
+            
     res_df = pd.DataFrame(results)
+    
+    # Calculate Metrics
+    # Fairness: Avg Judge Rank of Eliminated (Closer to N is better, meaning they were actually worst)
+    # But N varies. Let's use normalized rank (1 is best, 0 is worst).
+    # Actually, simpler: How often do we eliminate someone in the Top 3 Judge Scores?
+    bad_eliminations = len(res_df[res_df['judge_rank'] <= 3])
+    total_elim = len(res_df)
+    
+    print("--- New System Evaluation (Dynamic Weight + Bottom 3 Tech Elim) ---")
+    print(f"Total Simulations: {total_elim}")
+    print(f"Fairness Violation (Eliminated Top 3 Tech): {bad_eliminations} ({bad_eliminations/total_elim:.2%})")
+    print(f"Avg Fan Rank of Eliminated: {np.mean(res_df['fan_rank']):.2f} (Higher means less popular)")
+    
+    # Compare with Old System (Ranking Method) - From Q2 results (approx)
+    # In Q2 we found Ranking method protects popular people well.
+    # Here, by enforcing Tech Elim on Bottom 3, we might eliminate popular people if they bomb the judges.
+    
+    # Save
     res_df.to_csv('e:/美赛/Q4_simulation_results.csv', index=False)
-    
-    # Aggregate Metrics
-    print("\n--- Evaluation Results ---")
-    summary = res_df.groupby('method').agg({
-        'talent_loss_score': 'mean', # Lower is better (we want to eliminate low scorers)
-        'sim_elim_score': 'mean',    # Lower is better
-        'sim_elim_vote': 'mean'      # Lower is better (we want to eliminate low vote getters too?)
-    }).reset_index()
-    
-    summary['Talent_Retention_Score'] = 1 - summary['talent_loss_score'] # Higher is better
-    
-    print(summary)
-    
-    # Save Summary
-    summary.to_csv('e:/美赛/Q4_mechanism_comparison_summary.csv', index=False)
-    print("\nDetailed results saved to e:/美赛/Q4_simulation_results.csv")
-    print("Summary saved to e:/美赛/Q4_mechanism_comparison_summary.csv")
+    print("Simulation results saved to Q4_simulation_results.csv")
 
 if __name__ == "__main__":
     main()

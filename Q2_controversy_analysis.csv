@@ -1,0 +1,40 @@
+name,season,week,actual_status,elim_ranking,elim_percentage,elim_judge_save
+Jerry Rice,2,1,Safe,False,False,False
+Jerry Rice,2,2,Safe,False,False,False
+Jerry Rice,2,3,Safe,False,False,False
+Jerry Rice,2,4,Safe,False,False,False
+Jerry Rice,2,5,Safe,False,False,False
+Jerry Rice,2,6,Safe,False,False,False
+Jerry Rice,2,7,Safe,False,False,False
+Jerry Rice,2,8,Safe,False,True,False
+Billy Ray Cyrus,4,1,Safe,False,False,False
+Billy Ray Cyrus,4,2,Safe,False,False,False
+Billy Ray Cyrus,4,3,Safe,False,False,False
+Billy Ray Cyrus,4,4,Safe,False,False,False
+Billy Ray Cyrus,4,5,Safe,False,False,False
+Billy Ray Cyrus,4,6,Safe,False,False,False
+Billy Ray Cyrus,4,7,Safe,False,False,False
+Billy Ray Cyrus,4,8,Eliminated,False,True,False
+Bristol Palin,11,1,Safe,False,False,False
+Bristol Palin,11,2,Safe,False,False,False
+Bristol Palin,11,3,Safe,False,False,False
+Bristol Palin,11,4,Safe,False,False,False
+Bristol Palin,11,5,Safe,False,False,False
+Bristol Palin,11,6,Safe,False,False,False
+Bristol Palin,11,7,Safe,False,False,False
+Bristol Palin,11,8,Safe,False,False,False
+Bristol Palin,11,9,Safe,False,False,False
+Bristol Palin,11,10,Safe,False,True,False
+Bristol Palin,15,1,Safe,False,False,False
+Bristol Palin,15,2,Safe,False,False,False
+Bristol Palin,15,3,Safe,False,False,False
+Bristol Palin,15,4,Eliminated,False,True,False
+Bobby Bones,27,1,Safe,False,False,False
+Bobby Bones,27,2,Safe,False,False,False
+Bobby Bones,27,3,Safe,False,False,False
+Bobby Bones,27,4,Safe,False,False,False
+Bobby Bones,27,5,Safe,False,False,False
+Bobby Bones,27,6,Safe,False,False,False
+Bobby Bones,27,7,Safe,False,False,False
+Bobby Bones,27,8,Safe,False,False,False
+Bobby Bones,27,9,Safe,False,True,False

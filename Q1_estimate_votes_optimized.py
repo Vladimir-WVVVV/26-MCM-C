@@ -21,39 +21,49 @@ def rankdata_min(a):
         ranks[i] = rank
     return ranks
 
-def check_validity(judge_scores, fan_shares, eliminated_indices, safe_indices):
+def check_validity(judge_scores, fan_shares, eliminated_indices, safe_indices, method='Ranking'):
     """
     验证一组粉丝投票是否符合淘汰结果
     """
     n = len(judge_scores)
     
-    # 1. 计算排名
-    judge_ranks = rankdata_min(-judge_scores)
-    fan_ranks = rankdata_min(-fan_shares)
-    
-    # 2. 计算总排名 (Rank Method)
-    # 平局规则：总排名相同，粉丝排名低(数值大)者淘汰
-    # 构造 Metric: TotalRank + FanRank/1000
-    # Metric 越大 -> 表现越差
-    metric = (judge_ranks + fan_ranks) + (fan_ranks / 1000.0)
-    
+    # 1. 计算排名 (Ranking Method)
+    if method == 'Ranking':
+        judge_ranks = rankdata_min(-judge_scores)
+        fan_ranks = rankdata_min(-fan_shares)
+        
+        # 构造 Metric: TotalRank + FanRank/1000 (Tie-breaker)
+        metric = (judge_ranks + fan_ranks) + (fan_ranks / 1000.0)
+        
+    # 2. 百分比法 (Percentage Method)
+    elif method == 'Percentage':
+        if np.sum(judge_scores) > 0:
+            score_pct = judge_scores / np.sum(judge_scores)
+        else:
+            score_pct = np.zeros(n)
+        
+        # Combined = 0.5 * Score% + 0.5 * Vote%
+        # Eliminate MIN combined. So Metric should be NEGATIVE Combined to keep logic (Max Metric Eliminated)
+        combined = 0.5 * score_pct + 0.5 * fan_shares
+        metric = -combined # The smaller combined, the larger metric -> Eliminated
+        
+    else:
+        # Default fallback
+        metric = np.random.rand(n)
+
     if len(eliminated_indices) == 0:
-        return True # 无人淘汰，任何分布都算对
+        return True 
         
     elim_metrics = metric[eliminated_indices]
     
     if len(safe_indices) > 0:
         safe_metrics = metric[safe_indices]
-        # 核心约束：最强的淘汰者，其表现必须比最弱的安全者更差（Metric更大）
-        # 或者至少：所有淘汰者都在安全者之后
-        
-        # 严格约束：min(elim) > max(safe) 
-        # (即淘汰圈的第一名，也比安全圈的最后一名差)
+        # 严格约束：淘汰者的表现（Metric）必须比所有幸存者都差
+        # 即 Min(Elim) > Max(Safe)
         if np.min(elim_metrics) > np.max(safe_metrics):
             return True
         return False
     else:
-        # 所有人都是淘汰者（决赛？）
         return True
 
 # ==========================================
@@ -62,15 +72,13 @@ def check_validity(judge_scores, fan_shares, eliminated_indices, safe_indices):
 
 class AdaptiveVoteEstimator:
     def __init__(self):
-        # 记录每位选手的历史人气参数 (Alpha for Dirichlet)
-        # Key: Name, Value: Current Alpha
         self.participant_alphas = {}
-        self.base_alpha = 2.0 # 基础集中度
+        self.base_alpha = 2.0 
     
-    def get_prior_alphas(self, names, judge_scores):
+    def get_prior_alphas(self, names, judge_scores, industries=None, ages=None):
         """
         构造本周的先验分布参数 Alpha
-        Alpha = 历史人气 + 本周评委表现 + 基础底噪
+        Alpha = 历史人气 + 本周评委表现 + 人气特征偏好
         """
         n = len(names)
         alphas = np.ones(n)
@@ -82,15 +90,28 @@ class AdaptiveVoteEstimator:
             norm_scores = np.zeros(n) + 0.5
             
         for i, name in enumerate(names):
-            # 1. 历史成分 (Temporal Consistency)
+            # 1. 历史成分
             hist_alpha = self.participant_alphas.get(name, 1.0)
             
-            # 2. 评委成分 (Informative Prior)
-            # 假设评委分高的人，粉丝通常也多一点点 (0.5权重)
+            # 2. 评委成分
             score_boost = norm_scores[i] * 1.0 
             
+            # 3. 人气特征偏好 (Heuristic)
+            # 假设：年轻选手 (>20, <40) 和 运动员/歌手 可能更受欢迎
+            feature_boost = 0.0
+            if industries is not None:
+                ind = str(industries[i]).lower()
+                if 'athlete' in ind or 'singer' in ind or 'actor' in ind:
+                    feature_boost += 0.5
+            if ages is not None:
+                try:
+                    age = float(ages[i])
+                    if 18 <= age <= 35:
+                        feature_boost += 0.3
+                except: pass
+            
             # 综合 Alpha
-            alphas[i] = hist_alpha * 0.7 + score_boost + 0.5
+            alphas[i] = hist_alpha * 0.6 + score_boost * 0.8 + feature_boost + 0.5
             
         return alphas
 
@@ -108,56 +129,100 @@ class AdaptiveVoteEstimator:
             self.participant_alphas[name] = old_alpha * 0.4 + new_alpha * 0.6
 
     def solve_week(self, season, week, df_week, num_samples=3000):
+        """
+        Estimate vote shares for a specific week
+        """
         names = df_week['name'].values
         scores = df_week['score'].values
-        status = df_week['status'].values
+        statuses = df_week['status'].values
+        industries = df_week.get('industry', pd.Series(['']*len(names))).values
+        ages = df_week.get('age', pd.Series([0]*len(names))).values
+        n = len(names)
         
-        # 识别淘汰者
-        is_elim = np.array(['Eliminated' in s for s in status])
-        elim_idx = np.where(is_elim)[0]
-        safe_idx = np.where(~is_elim)[0]
+        # 确定使用哪种方法 (Ranking vs Percentage)
+        # S1-S2, S28-S34: Ranking
+        # S3-S27: Percentage
+        method = 'Ranking'
+        try:
+            s_str = str(season).replace('Season', '').strip()
+            s_num = int(float(s_str))
+            if 3 <= s_num <= 27:
+                method = 'Percentage'
+        except:
+            pass # Default to Ranking if parsing fails
         
-        # 1. 获取先验 Alpha
-        alphas = self.get_prior_alphas(names, scores)
+        # 构造先验
+        alphas = self.get_prior_alphas(names, scores, industries, ages)
         
         valid_samples = []
         
-        # 2. 采样 (Batch Sampling)
-        # 既然我们有了更好的 Prior，命中率会提高
-        batch_size = num_samples
+        # Monte Carlo Simulation
+        # Batch generation for speed
+        batch_size = 1000
+        total_generated = 0
         
-        # 生成 Dirichlet 分布
-        # samples shape: (batch_size, n_participants)
-        samples = np.random.dirichlet(alphas, batch_size)
+        elim_indices = np.where(statuses == 'Eliminated')[0]
+        safe_indices = np.where(statuses == 'Safe')[0]
         
-        for v in samples:
-            if check_validity(scores, v, elim_idx, safe_idx):
-                valid_samples.append(v)
+        while len(valid_samples) < num_samples and total_generated < num_samples * 20:
+            # Dirichlet sampling
+            samples = np.random.dirichlet(alphas, batch_size)
+            total_generated += batch_size
+            
+            for i in range(batch_size):
+                fan_shares = samples[i]
+                if check_validity(scores, fan_shares, elim_indices, safe_indices, method):
+                    valid_samples.append(fan_shares)
+                    if len(valid_samples) >= num_samples:
+                        break
         
-        # 3. 结果处理
+        # Fallback if hard constraints are too strict (Soft Relaxation)
+        if len(valid_samples) < 50:
+            # print(f"Warning: Low acceptance rate for {season} Week {week}. Relaxing constraints...")
+            # Use Prior Mean directly but add noise
+            prior_mean = alphas / np.sum(alphas)
+            for _ in range(num_samples - len(valid_samples)):
+                noise = np.random.normal(0, 0.01, n)
+                noisy_sample = prior_mean + noise
+                noisy_sample = np.abs(noisy_sample)
+                noisy_sample /= np.sum(noisy_sample)
+                valid_samples.append(noisy_sample)
+        
         valid_samples = np.array(valid_samples)
         
-        if len(valid_samples) < 10:
-            # 如果样本太少，说明 Prior 可能误导了，或者约束太紧
-            # 尝试回退到均匀分布再采一次 (Rescue Mode)
-            fallback_samples = np.random.dirichlet(np.ones(len(names)), 2000)
-            for v in fallback_samples:
-                if check_validity(scores, v, elim_idx, safe_idx):
-                    valid_samples = np.vstack([valid_samples, v]) if len(valid_samples) > 0 else np.array([v])
+        # Calculate estimates (Mean & Std)
+        est_means = np.mean(valid_samples, axis=0)
+        est_stds = np.std(valid_samples, axis=0)
         
-        if len(valid_samples) == 0:
-            # print(f"  Warning: S{season} W{week} - No valid solution found. Using Prior Mean.")
-            # 兜底：直接使用先验分布的均值 (Alpha / Sum(Alpha))
-            final_est = alphas / np.sum(alphas)
-            final_std = np.zeros_like(final_est) + 0.05 # 假定一个不确定性
-        else:
-            final_est = np.mean(valid_samples, axis=0)
-            final_std = np.std(valid_samples, axis=0)
+        # Update history for next week
+        self.update_history(names, est_means)
+        
+        # Calculate Consistency (Accuracy) for this week
+        # Re-check if the Mean Estimate satisfies the rule
+        is_consistent = check_validity(scores, est_means, elim_indices, safe_indices, method)
+        
+        # Calculate Certainty (Average Relative Width of 95% CI)
+        # Simple proxy: 1 - (2 * std / mean) or just avg std
+        certainty_metric = 1.0 - (np.mean(est_stds) * 4) # Rough scaling
+        
+        results = []
+        for i, name in enumerate(names):
+            results.append({
+                'season': season,
+                'week': week,
+                'name': name,
+                'score': scores[i],
+                'status': statuses[i],
+                'industry': str(industries[i]),
+                'age': str(ages[i]),
+                'est_vote_share': est_means[i],
+                'est_vote_std': est_stds[i],
+                'method_used': method,
+                'is_consistent': is_consistent,
+                'certainty_score': certainty_metric
+            })
             
-            # 4. 更新历史
-            self.update_history(names, final_est)
-            
-        return final_est, final_std
+        return results
 
 # ==========================================
 # 主程序
@@ -204,10 +269,16 @@ def main():
                             except:
                                 pass
                 
-                # If no scores, skip (not participating)
+                # Handling N/A and 0 scores
+                # If count < 3 and score_sum == 0: Skip (likely already eliminated or not present)
+                # If count == 3: Scale to 4 judges equivalent (score * 4/3)
+                
                 if count == 0:
                     continue
-                    
+                
+                if count == 3:
+                    score_sum = score_sum * (4/3)
+                
                 # Determine status for this week
                 current_status = 'Safe'
                 if w == elim_week:
@@ -220,7 +291,9 @@ def main():
                     'week': w, 
                     'name': name,
                     'score': score_sum, 
-                    'status': current_status
+                    'status': current_status,
+                    'industry': row.get('celebrity_industry', 'Unknown'),
+                    'age': row.get('celebrity_age_during_season', 30)
                 })
         except Exception as e:
             print(f"Skipping row {idx}: {e}")
@@ -248,23 +321,17 @@ def main():
             # Skip if no one is eliminated (unless it's the finale, but even then)
             # Logic inside solve_week handles this, but we should be careful
             
-            est_votes, est_std = estimator.solve_week(season, week, week_data)
+            # Solve for this week
+            week_results = estimator.solve_week(season, week, week_data)
             
-            for i, (idx, row) in enumerate(week_data.iterrows()):
-                results.append({
-                    'season': season,
-                    'week': week,
-                    'name': row['name'],
-                    'judge_score': row['score'],
-                    'status': row['status'],
-                    'est_vote_share': est_votes[i],
-                    'est_vote_std': est_std[i]
-                })
-                
-    # 保存结果
-    res_df = pd.DataFrame(results)
-    res_df.to_csv('e:/美赛/Q1_estimated_fan_votes_optimized.csv', index=False)
-    print("Done. Saved to e:/美赛/Q1_estimated_fan_votes_optimized.csv")
+            results.extend(week_results)
+            
+            # print(f"  {season} Week {week}: Processed {len(week_results)} participants")
+
+    # Save Results
+    results_df = pd.DataFrame(results)
+    results_df.to_csv('e:/美赛/Q1_estimated_fan_votes_optimized.csv', index=False)
+    print("Optimization Complete. Results saved to Q1_estimated_fan_votes_optimized.csv")
 
 if __name__ == "__main__":
     main()

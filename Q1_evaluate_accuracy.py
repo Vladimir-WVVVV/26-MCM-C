@@ -45,7 +45,7 @@ def main():
             total_weeks += 1
             
             # Reconstruct elimination logic
-            scores = week_data['judge_score'].values
+            scores = week_data['score'].values
             votes = week_data['est_vote_share'].values
             names = week_data['name'].values
             

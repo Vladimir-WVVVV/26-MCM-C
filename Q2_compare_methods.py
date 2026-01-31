@@ -1,155 +1,228 @@
 import pandas as pd
 import numpy as np
-import os
 
 def rankdata_min(a):
+    """
+    Custom rankdata function using 'min' method (1 for highest score).
+    """
+    a = np.array(a)
     n = len(a)
-    ranks = np.zeros(n, dtype=int)
+    sort_indices = np.argsort(-a) # Descending sort
+    ranks = np.empty(n, dtype=int)
+    
+    current_rank = 1
     for i in range(n):
-        rank = 1
-        for j in range(n):
-            if a[j] < a[i]:
-                rank += 1
-        ranks[i] = rank
+        if i > 0 and a[sort_indices[i]] == a[sort_indices[i-1]]:
+            ranks[sort_indices[i]] = ranks[sort_indices[i-1]]
+        else:
+            ranks[sort_indices[i]] = i + 1
+            
     return ranks
 
-def main():
-    # Load estimated votes
-    votes_path = 'e:/美赛/Q1_estimated_fan_votes.csv'
-    if not os.path.exists(votes_path):
-        print("Estimated votes file not found. Run Task 1 first.")
-        return
+def calculate_metrics(df_week, method_name, judge_weight=0.5):
+    """
+    Calculate combined metrics based on method.
+    Returns sorted dataframe with 'is_eliminated_sim' flag.
+    Standardized Score: Lower is Better for Ranking, Higher is Better for Percentage.
+    To unify: We will output 'final_score' where Higher is Better.
+    """
+    scores = df_week['score'].values
+    votes = df_week['est_vote_share'].values
+    n = len(scores)
+    
+    # 1. Ranking Method (Standardized)
+    # Original: Total Rank = JudgeRank + FanRank. Lowest is Best.
+    # Standardized Score (0-1, Higher is Better): 1 - (TotalRank / (2*N))
+    if method_name == 'Ranking':
+        judge_ranks = rankdata_min(-scores)
+        fan_ranks = rankdata_min(-votes)
+        total_rank = (judge_ranks * judge_weight * 2) + (fan_ranks * (1-judge_weight) * 2)
+        # Invert so higher is better
+        final_metric = -total_rank 
+        
+    # 2. Percentage Method (Standardized)
+    # Original: Combined % = 0.5 * Score% + 0.5 * Vote%. Highest is Best.
+    elif method_name == 'Percentage':
+        if np.sum(scores) > 0:
+            score_pct = scores / np.sum(scores)
+        else:
+            score_pct = np.zeros(n)
+        
+        final_metric = (score_pct * judge_weight) + (votes * (1-judge_weight))
+        
+    df_week = df_week.copy()
+    df_week['sim_metric'] = final_metric
+    
+    # Sort descending (higher metric is better)
+    df_week = df_week.sort_values('sim_metric', ascending=False).reset_index(drop=True)
+    
+    # Mark last place as eliminated
+    df_week['sim_eliminated'] = False
+    if len(df_week) > 0:
+        df_week.loc[len(df_week)-1, 'sim_eliminated'] = True
+        
+    return df_week
 
-    df = pd.read_csv(votes_path)
+def simulate_judge_save(df_week, method_name, judge_weight=0.5):
+    """
+    Simulate 'Judge Save' mechanism: Bottom 2 face judges.
+    Judges save the one with higher judge score.
+    """
+    # First, calculate metrics to get Bottom 2
+    scores = df_week['score'].values
+    votes = df_week['est_vote_share'].values
+    n = len(scores)
     
-    comparison_results = []
+    if method_name == 'Ranking':
+        judge_ranks = rankdata_min(-scores)
+        fan_ranks = rankdata_min(-votes)
+        total_rank = (judge_ranks * judge_weight * 2) + (fan_ranks * (1-judge_weight) * 2)
+        final_metric = -total_rank
+    elif method_name == 'Percentage':
+        if np.sum(scores) > 0:
+            score_pct = scores / np.sum(scores)
+        else:
+            score_pct = np.zeros(n)
+        final_metric = (score_pct * judge_weight) + (votes * (1-judge_weight))
+        
+    df_week = df_week.copy()
+    df_week['sim_metric'] = final_metric
     
-    # Process each week
-    for season in df['season'].unique():
-        season_df = df[df['season'] == season]
-        for week in season_df['week'].unique():
-            week_df = season_df[season_df['week'] == week].copy()
+    # Sort descending
+    df_sorted = df_week.sort_values('sim_metric', ascending=False).reset_index(drop=True)
+    
+    if len(df_sorted) < 2:
+        return df_sorted # Can't do bottom 2
+        
+    # Identify Bottom 2
+    bottom_2 = df_sorted.tail(2)
+    p1 = bottom_2.iloc[0] # Second to last
+    p2 = bottom_2.iloc[1] # Last
+    
+    eliminated_idx = -1
+    
+    # Judge Save Logic: Higher Judge Score Stays
+    if p1['score'] > p2['score']:
+        eliminated_idx = df_sorted.index[-1] # p2 eliminated
+    elif p2['score'] > p1['score']:
+        eliminated_idx = df_sorted.index[-2] # p1 eliminated
+    else:
+        # Tie on judge score -> Fallback to original metric
+        eliminated_idx = df_sorted.index[-1]
+        
+    df_sorted['sim_eliminated'] = False
+    df_sorted.loc[eliminated_idx, 'sim_eliminated'] = True
+    
+    return df_sorted
+
+def analyze_controversy(df, controversial_names):
+    """
+    Analyze specific controversial participants.
+    """
+    results = []
+    for name in controversial_names:
+        p_data = df[df['name'] == name]
+        for _, row in p_data.iterrows():
+            # Re-simulate with both methods
+            # Need context of the whole week
+            week_df = df[(df['season'] == row['season']) & (df['week'] == row['week'])]
             
-            # 1. Ranking Method (Original)
-            scores = week_df['judge_score'].values
-            fan_shares = week_df['est_vote_share'].values
+            # 1. Ranking
+            res_rank = calculate_metrics(week_df, 'Ranking')
+            is_elim_rank = res_rank[res_rank['name'] == name]['sim_eliminated'].values[0]
             
-            judge_ranks = rankdata_min(-scores)
-            fan_ranks = rankdata_min(-fan_shares)
+            # 2. Percentage
+            res_pct = calculate_metrics(week_df, 'Percentage')
+            is_elim_pct = res_pct[res_pct['name'] == name]['sim_eliminated'].values[0]
             
-            total_ranks = judge_ranks + fan_ranks
+            # 3. Judge Save
+            res_save = simulate_judge_save(week_df, 'Ranking') # Base on Ranking
+            is_elim_save = res_save[res_save['name'] == name]['sim_eliminated'].values[0]
             
-            # Determine eliminated in Ranking Method (Highest total rank = Worst)
-            # Tie-breaker: Fan Votes
-            metric_rank = total_ranks + (fan_ranks / 1000.0)
-            
-            # 2. Percentage Method
-            # Judge Pct + Fan Pct
-            total_score = np.sum(scores)
-            if total_score > 0:
-                judge_pct = scores / total_score
-            else:
-                judge_pct = np.zeros_like(scores)
-            
-            # Combine 50/50
-            total_pct = (judge_pct + fan_shares) / 2.0
-            
-            # Determine eliminated in Pct Method (Lowest pct = Worst)
-            # We rank -total_pct so that Rank 1 is Best (Highest Pct)
-            # Actually, let's just use the raw pct values. Lowest is eliminated.
-            
-            # Identify actual eliminated
-            actual_eliminated = week_df[week_df['status'].str.contains('Eliminated', na=False)]['name'].tolist()
-            
-            # Simulate Elimination (Bottom 1)
-            # Rank Method: Max metric_rank is eliminated
-            rank_worst_idx = np.argmax(metric_rank)
-            rank_eliminated = week_df.iloc[rank_worst_idx]['name']
-            
-            # Pct Method: Min total_pct is eliminated
-            pct_worst_idx = np.argmin(total_pct)
-            pct_eliminated = week_df.iloc[pct_worst_idx]['name']
-            
-            match_rank = (rank_eliminated in actual_eliminated) if actual_eliminated else (rank_eliminated == 'None') # Simplified
-            match_pct = (pct_eliminated in actual_eliminated) if actual_eliminated else (pct_eliminated == 'None')
-            
-            comparison_results.append({
-                'season': season,
-                'week': week,
-                'actual_eliminated': str(actual_eliminated),
-                'rank_eliminated': rank_eliminated,
-                'pct_eliminated': pct_eliminated,
-                'match_rank': match_rank,
-                'match_pct': match_pct,
-                'names': week_df['name'].values,
-                'judge_ranks': judge_ranks,
-                'fan_ranks': fan_ranks,
-                'total_pct': total_pct
+            results.append({
+                'name': name,
+                'season': row['season'],
+                'week': row['week'],
+                'actual_status': row['status'],
+                'elim_ranking': is_elim_rank,
+                'elim_percentage': is_elim_pct,
+                'elim_judge_save': is_elim_save
             })
-            
-    res_df = pd.DataFrame(comparison_results)
-    res_df.to_csv('e:/美赛/Q2_method_comparison.csv', index=False)
-    print("Comparison saved to e:/美赛/Q2_method_comparison.csv")
+    return pd.DataFrame(results)
+
+def main():
+    # Load optimized estimates
+    df = pd.read_csv('e:/美赛/Q1_estimated_fan_votes_optimized.csv')
     
-    # Controversial Cases Analysis
-    controversial = [
-        ('Jerry Rice', 2),
-        ('Billy Ray Cyrus', 4),
-        ('Bristol Palin', 11),
-        ('Bobby Bones', 27)
-    ]
+    # 1. Cross-Season Comparison
+    # Calculate Disagreement Rate between Ranking and Percentage
+    disagreements = 0
+    total_weeks = 0
     
-    print("\n--- Controversial Cases Analysis ---")
-    for name, target_season in controversial:
-        print(f"\nAnalyzing {name} (Season {target_season})")
-        # Filter for this person
-        # Note: Names might need partial matching
+    bias_results = []
+    
+    seasons = df['season'].unique()
+    for s in seasons:
+        s_data = df[df['season'] == s]
+        weeks = s_data['week'].unique()
         
-        # Find the rows in comparison_results
-        relevant_rows = res_df[res_df['season'] == target_season]
-        
-        found = False
-        for idx, row in relevant_rows.iterrows():
-            names = row['names'] # This is a numpy array inside the dataframe cell? No, it's an object from previous append
-            # When loaded from CSV it would be string, but here it is still in memory list if we use the list `comparison_results`
-            # But we are iterating `res_df`.
+        for w in weeks:
+            w_data = s_data[s_data['week'] == w]
+            if len(w_data) <= 1: continue
             
-            # Let's iterate the original df for details
-            pass
+            # Run both methods
+            res_rank = calculate_metrics(w_data, 'Ranking')
+            res_pct = calculate_metrics(w_data, 'Percentage')
             
-        # Re-querying the results df is tricky because 'names' is stored as object/string.
-        # Let's just iterate the raw week_df logic again for specific cases or use the saved CSV structure
-        
-        # Simplified: Just print stats from the calculated DataFrames
-        person_stats = df[(df['season'] == target_season) & (df['name'] == name)]
-        if person_stats.empty:
-             # Try partial match
-             person_stats = df[(df['season'] == target_season) & (df['name'].str.contains(name, case=False))]
-        
-        if not person_stats.empty:
-            found = True
-            for _, p_row in person_stats.iterrows():
-                wk = p_row['week']
-                # Get context for that week
-                week_res = res_df[(res_df['season'] == target_season) & (res_df['week'] == wk)].iloc[0]
+            elim_rank = res_rank[res_rank['sim_eliminated']]['name'].values
+            elim_pct = res_pct[res_pct['sim_eliminated']]['name'].values
+            
+            if len(elim_rank) > 0 and len(elim_pct) > 0:
+                if elim_rank[0] != elim_pct[0]:
+                    disagreements += 1
+            
+            total_weeks += 1
+            
+            # Bias Analysis
+            # Define "Judge Favored": Top 50% Judge, Bottom 50% Fan
+            # Define "Fan Favored": Top 50% Fan, Bottom 50% Judge
+            n = len(w_data)
+            w_data = w_data.copy()
+            w_data['judge_rank'] = rankdata_min(-w_data['score'])
+            w_data['fan_rank'] = rankdata_min(-w_data['est_vote_share'])
+            
+            judge_favored = w_data[(w_data['judge_rank'] <= n/2) & (w_data['fan_rank'] > n/2)]
+            fan_favored = w_data[(w_data['fan_rank'] <= n/2) & (w_data['judge_rank'] > n/2)]
+            
+            for _, p in judge_favored.iterrows():
+                # Check survival in Ranking vs Percentage
+                survived_rank = not (p['name'] in elim_rank)
+                survived_pct = not (p['name'] in elim_pct)
+                bias_results.append({'type': 'Judge_Favored', 'survived_rank': survived_rank, 'survived_pct': survived_pct})
                 
-                # Re-calculate ranks for display
-                # Note: In a real app we'd join this properly.
-                # Here we just want to see: Did Pct Method eliminate them?
-                
-                pct_elim = week_res['pct_eliminated']
-                rank_elim = week_res['rank_eliminated']
-                actual = week_res['actual_eliminated']
-                
-                if pct_elim == name or rank_elim == name or name in actual:
-                    print(f"Week {wk}: Actual Elim: {actual}. Rank Method Elim: {rank_elim}. Pct Method Elim: {pct_elim}.")
-                    
-                    # Calculate their specific position
-                    # We need to reconstruct the week's data to see their exact rank
-                    pass
-        
-        if not found:
-            print(f"Could not find data for {name}")
+            for _, p in fan_favored.iterrows():
+                survived_rank = not (p['name'] in elim_rank)
+                survived_pct = not (p['name'] in elim_pct)
+                bias_results.append({'type': 'Fan_Favored', 'survived_rank': survived_rank, 'survived_pct': survived_pct})
+
+    print(f"Total Weeks: {total_weeks}")
+    print(f"Disagreement Rate: {disagreements/total_weeks:.2%}")
+    
+    bias_df = pd.DataFrame(bias_results)
+    print("\nBias Analysis (Survival Rate):")
+    print(bias_df.groupby('type')[['survived_rank', 'survived_pct']].mean())
+    
+    # 2. Controversy Analysis
+    controversial = ['Jerry Rice', 'Billy Ray Cyrus', 'Bristol Palin', 'Bobby Bones']
+    # Filter only if they exist in dataset
+    exist_names = df['name'].unique()
+    target_names = [n for n in controversial if n in exist_names]
+    
+    if len(target_names) > 0:
+        contra_res = analyze_controversy(df, target_names)
+        contra_res.to_csv('e:/美赛/Q2_controversy_analysis.csv', index=False)
+        print("\nControversy analysis saved to Q2_controversy_analysis.csv")
+        print(contra_res.groupby('name')[['elim_ranking', 'elim_percentage', 'elim_judge_save']].sum())
 
 if __name__ == "__main__":
     main()
