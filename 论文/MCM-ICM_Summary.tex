@@ -1,0 +1,295 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MCM/ICM LaTeX Template %%
+%% 2026 MCM/ICM           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{newtxtext, newtxmath}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Problem}{C}
+\newcommand{\Team}{2614177}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set page margins
+\geometry{left=1in, right=1in, top=1in, bottom=1in}
+
+% Header and footer setup
+\pagestyle{fancy}
+\lhead{Team \Team}
+\chead{}
+\rhead{\Problem}
+\cfoot{Page \thepage\ of \pageref{LastPage}}
+
+% Theorem environments (if needed)
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+	% Summary Sheet Page
+	\thispagestyle{empty}
+	\begin{center}
+		\begin{tabular}{ccc}
+			\parbox[t]{0.3\linewidth}{\centering\textbf{Problem Chosen}\\ \Large \textcolor{red}{\Problem}} &
+			\parbox[t]{0.3\linewidth}{\centering\textbf{2026\\ MCM/ICM\\ Summary Sheet}} &
+			\parbox[t]{0.3\linewidth}{\centering\textbf{Team Control Number}\\ \Large \textcolor{red}{\Team}} \\
+			\hline
+		\end{tabular}
+	\end{center}
+	
+	\vspace{0.5cm}
+	
+	\begin{center}
+		\textbf{\Large Dancing with the Data: A Dual-Engine Hybrid Approach for Vote Reconstruction and Mechanism Optimization}
+	\end{center}
+	
+	\begin{abstract}
+		In the context of \emph{Dancing with the Stars}, the opacity of fan voting data presents a significant challenge for analyzing competition fairness and optimizing program mechanisms. This paper proposes a comprehensive framework to reconstruct hidden voting distributions, evaluate scoring methodologies, analyze bias factors, and design an optimal competition format.
+		
+		For \textbf{Task 1}, we developed a \textbf{Hybrid MAP-MCMC Dual-Engine Model} to reconstruct the latent fan voting percentages. By integrating Maximum A Posteriori (MAP) estimation for coarse localization with Markov Chain Monte Carlo (MCMC) for fine-grained search, and further incorporating a temporal smoothing prior based on Machine Learning (ML), we successfully recovered the voting data for 335 historical weeks with an average accuracy of \textbf{98.21\%}.
+		
+		For \textbf{Task 2}, we conducted a \textbf{Counterfactual Simulation} to compare the standard "Ranking Method" with the raw "Percentage Method". We identified a \textbf{17.91\% Disagreement Rate} between the two methods. Our analysis confirms that the Ranking Method is superior in protecting "Judge Favorites" (96.9\% survival rate vs. 91.3\% under Percentage Method), acting as a necessary safety net against fan volatility.
+		
+		For \textbf{Task 3}, we employed a \textbf{Hybrid Attribution Model} (Linear OLS for judges + Non-linear Polynomial for fans) to quantify the impact of demographics. We discovered an \textbf{"Age Paradox"}: Judges penalize age linearly ($\beta = -0.038$), while fans exhibit a U-shaped preference. Additionally, judges show a bias towards Actors (+0.027), whereas fans significantly favor Athletes (+0.004).
+		
+		For \textbf{Task 4}, we designed a \textbf{Multi-Objective Mechanism Optimization} framework. Through fine-grained grid search, we identified the optimal strategy: \textbf{"Early Fan Empowerment, Late Judge Control"} (10\%/90\% split early $\to$ 45\%/55\% split late), combined with a \textbf{"Bottom 3 Judge Save"} mechanism. This configuration reduces the unfair elimination rate of technical talents to \textbf{$<$0.5\%} while maintaining high viewer engagement.
+		
+		\textbf{Keywords:} Inverse Problem, MCMC, Counterfactual Simulation, Mechanism Design, Multi-Objective Optimization
+	\end{abstract}
+	
+	\newpage
+	
+	% Main content starts here
+	\setcounter{page}{1}
+	\pagestyle{fancy}
+	
+	\section{Introduction}
+	
+	\subsection{Background}
+	Reality competition shows like \emph{Dancing with the Stars} rely on a dual-scoring system involving professional judges and audience voting. While judge scores are public, audience voting percentages are strictly confidential. This "black box" nature obscures the true dynamics of the competition, making it difficult to assess whether the best dancers are truly winning or if the system is biased towards popularity.
+	
+	\subsection{Problem Restatement}
+	We are tasked with:
+	\begin{enumerate}[label=\arabic*.]
+		\item \textbf{Reconstructing} the hidden fan voting distribution for all past seasons.
+		\item \textbf{Evaluating} whether the current "Ranking Method" is fairer than a direct "Percentage Method."
+		\item \textbf{Identifying} factors (age, gender, industry) that influence judges vs. fans.
+		\item \textbf{Proposing} an optimal competition mechanism that balances fairness and entertainment value.
+	\end{enumerate}
+	
+	\subsection{Our Approach}
+	We adopt a data-driven approach, treating the reconstruction as a constrained inverse problem and the mechanism design as a multi-objective optimization problem. Our framework is "Zero-Dependency," relying solely on fundamental matrix operations for maximum reproducibility.
+	
+	\section{Task 1: Reconstructing the Black Box}
+	
+	\subsection{The Challenge}
+	We observe the final elimination outcome $E$ and judge scores $S_J$, but the fan votes $V_F$ are latent. The relationship is defined by a complex, non-differentiable ranking function $f$:
+	\[
+	E = f(\text{Rank}(S_J) + \text{Rank}(V_F))
+	\]
+	This is an ill-posed inverse problem with multiple feasible solutions.
+	
+	\subsection{The Hybrid MAP-MCMC Model}
+	To solve this, we propose a \textbf{Dual-Engine Architecture}:
+	
+	\begin{enumerate}
+		\item \textbf{Engine 1: MAP Estimation (Coarse Localization)} \\
+		We formulate a Maximum A Posteriori problem with a "Soft Hinge Loss" to penalize violations of the elimination constraints. This quickly moves the solution to a high-probability region.
+		\[
+		L_{\text{MAP}} = \sum_{i \in \text{Survivors}} \max(0, \text{Score}_{\text{Eliminated}} - \text{Score}_{i} + \epsilon)
+		\]
+		
+		\item \textbf{Engine 2: MCMC Sampling (Fine-Grained Search)} \\
+		We use a Metropolis-Hastings algorithm to sample from the feasible space.
+		\begin{itemize}
+			\item \textbf{Proposal Distribution:} $V_{\text{new}} = V_{\text{old}} + \mathcal{N}(0, \sigma_{\text{adaptive}})$
+			\item \textbf{Acceptance Criterion:} Hard constraint check (must match actual elimination).
+		\end{itemize}
+		
+		\item \textbf{Temporal Smoothing Prior} \\
+		We incorporate an ML-based prior (Ridge Regression) that predicts vote shares based on historical trends (Season, Week, Demographics). This helps select the most "realistic" solution among mathematically valid ones.
+	\end{enumerate}
+	
+	\subsection{Results}
+	\begin{itemize}
+		\item \textbf{Accuracy:} The model achieved \textbf{98.21\%} consistency with historical elimination records across 335 weeks.
+		\item \textbf{Validation:} In a 5-trial robustness test, the accuracy remained stable ($98.21\% \pm 0.05\%$).
+		\item \textbf{Output:} We generated \texttt{Q1\_estimated\_fan\_votes\_optimized.csv}, which serves as the \textbf{Single Source of Truth} for subsequent tasks.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{visualization_results/Q1_Accuracy_Distribution.png}
+		\caption{Distribution of reconstruction accuracy across 5 robustness trials.}
+		\label{fig:q1_accuracy}
+	\end{figure}
+	
+	\section{Task 2: Method Comparison}
+	
+	\subsection{The Two Methods}
+	\begin{itemize}
+		\item \textbf{Ranking Method (Current):} $\text{Score} = \text{Rank}(S_J) + \text{Rank}(V_F)$. This compresses the variance of votes.
+		\item \textbf{Percentage Method (Alternative):} $\text{Score} = \frac{S_J}{\text{Total}_J} + \frac{V_F}{\text{Total}_F}$. This preserves the magnitude of differences.
+	\end{itemize}
+	
+	\subsection{Counterfactual Simulation}
+	We re-ran the history of \emph{Dancing with the Stars} using the Percentage Method on our reconstructed data.
+	
+	\subsection{Findings}
+	\begin{itemize}
+		\item \textbf{Disagreement Rate:} \textbf{17.91\%}. In nearly 1/5 of the weeks, the elimination result would have been different.
+		\item \textbf{Fairness Analysis:}
+		\begin{itemize}
+			\item \textbf{Judge Favorites (Technical Talents):} The Ranking Method saves them 96.9\% of the time, vs 91.3\% for Percentage. The Ranking Method acts as a "Safety Net" against fan volatility.
+			\item \textbf{Fan Favorites (Popularity):} The Ranking Method is even more protective (99.7\% save rate).
+		\end{itemize}
+	\end{itemize}
+	
+	\textbf{Conclusion:} The Ranking Method is superior for maintaining competitive integrity, preventing a single "Super Popular" contestant from rendering judge scores irrelevant.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{visualization_results/Q2_Method_Comparison.png}
+		\caption{Survival rates of "Judge Favorites" and "Fan Favorites" under different scoring methods.}
+		\label{fig:q2_comparison}
+	\end{figure}
+	
+	\section{Task 3: The Bias Within}
+	
+	\subsection{Hybrid Attribution Model}
+	We modeled the scores as:
+	\[
+	\begin{aligned}
+		\text{Score}_J &= \alpha + \beta_1 \text{Age} + \beta_2 \text{Gender} + \beta_3 \text{Industry} + \epsilon \\
+		\text{Share}_F &= \alpha + \gamma_1 \text{Age} + \gamma_2 \text{Age}^2 + \gamma_3 \text{Gender} + \gamma_4 \text{Industry} + \epsilon
+	\end{aligned}
+	\]
+	
+	\subsection{Key Discoveries}
+	\begin{enumerate}
+		\item \textbf{The Age Paradox:}
+		\begin{itemize}
+			\item \textbf{Judges:} Linear penalty ($\beta = -0.038$). Every 10 years of age reduces judge scores significantly.
+			\item \textbf{Fans:} U-shaped curve. Fans love the energy of youth but also revere older "Legends." The middle-aged group is the "Death Valley."
+		\end{itemize}
+		
+		\item \textbf{Industry Bias:}
+		\begin{itemize}
+			\item \textbf{Judges:} Prefer \textbf{Actors} (+0.027).
+			\item \textbf{Fans:} Prefer \textbf{Athletes} (+0.004). This explains why athletes often survive elimination despite lower technical scores.
+		\end{itemize}
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{visualization_results/Q3_Factor_Analysis.png}
+		\caption{Coefficients of influence for Judges vs. Fans.}
+		\label{fig:q3_analysis}
+	\end{figure}
+	
+	\section{Task 4: Designing the Optimal Mechanism}
+	
+	\subsection{Objective Function}
+	We aim to minimize a global loss function $L$:
+	\[
+	L = w_1 \cdot P_{\text{Unfair}} + w_2 \cdot P_{\text{Boring}} + w_3 \cdot (1 - \text{Retention})
+	\]
+	Where $P_{\text{Unfair}}$ is the probability of eliminating a top-3 dancer, and $P_{\text{Boring}}$ is the probability of predictable results.
+	
+	\subsection{Grid Search Optimization}
+	We performed a grid search on the weight distribution $(w_J, w_F)$ across three stages: Early (Weeks 1-4), Mid (Weeks 5-8), and Late (Week 9+).
+	
+	\subsection{Optimal Configuration}
+	The "Fan-Centric" Strategy:
+	\begin{enumerate}
+		\item \textbf{Dynamic Weights:}
+		\begin{itemize}
+			\item \textbf{Early Stage:} \textbf{10\% Judge / 90\% Fan}. Let the audience build a connection.
+			\item \textbf{Late Stage:} \textbf{45\% Judge / 55\% Fan}. Increase technical scrutiny as the finale approaches.
+		\end{itemize}
+		
+		\item \textbf{Safety Mechanism:} \textbf{"Bottom 3 Judge Save"}. Judges can unilaterally save one couple from the bottom 3 vote-getters.
+	\end{enumerate}
+	
+	\subsection{Simulation Results}
+	Under this new mechanism:
+	\begin{itemize}
+		\item \textbf{Technical Unfairness} drops to \textbf{$<$0.5\%}.
+		\item \textbf{Fan Engagement} remains high (votes still matter significantly).
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{visualization_results/Q4_Optimization_Landscape.png}
+		\caption{Optimization landscape showing the trade-off between Fairness and Retention.}
+		\label{fig:q4_optimization}
+	\end{figure}
+	
+	\section{Sensitivity Analysis}
+	We tested our optimal mechanism against:
+	\begin{enumerate}
+		\item \textbf{Vote Volatility:} Adding $\pm 10\%$ noise to fan votes. The mechanism held robust.
+		\item \textbf{Judge Bias:} Simulating "Mean Judges." The "Bottom 3 Save" successfully counteracted extreme judge bias.
+	\end{enumerate}
+	
+	\section{Conclusion}
+	Our study demystifies the \emph{Dancing with the Stars} voting system. By reconstructing the "Dark Matter" of fan votes with 98.21\% accuracy, we proved that the current Ranking Method is a necessary evil to protect talent. However, our proposed \textbf{Dynamic Weighting + Judge Save} mechanism offers a superior balance, ensuring that while the fans choose the stars, the judges ensure they can actually dance.
+	
+	\section*{Memo}
+	\begin{tabular}{@{}ll@{}}
+		\textbf{To:} & The Director of \emph{Dancing with the Stars} \\
+		\textbf{From:} & MCM Modeling Team \\
+		\textbf{Date:} & January 31, 2026 \\
+		\textbf{Subject:} & Proposal for Optimizing Competition Fairness and Engagement \\
+	\end{tabular}
+	
+	\vspace{1em}
+	
+	Dear Director,
+	
+	After a rigorous analysis of 34 seasons of data, we have identified key opportunities to enhance the fairness and excitement of your show.
+	
+	\textbf{Key Insight:} Your current "Ranking Method" is effective but rigid. It occasionally fails to save technically brilliant dancers from overwhelming popularity contests.
+	
+	\textbf{Our Recommendation:}
+	Adopting a \textbf{"Dynamic Weighting"} system.
+	\begin{enumerate}
+		\item \textbf{Start with the Fans:} In the first 4 weeks, lower the judge's weight to 10\%. Let the audience fall in love with the personalities.
+		\item \textbf{Tighten the Screws:} As the finale nears, increase judge weight to 45\%. This ensures the winner is a credible dancer.
+		\item \textbf{The "Judge Save":} Grant judges a "Golden Ticket" power to save one couple from the bottom 3 each week.
+	\end{enumerate}
+	
+	Our simulations show this reduces the unfair elimination of top talent by over 90\% without alienating your viewer base.
+	
+	\vspace{2em}
+	
+	Sincerely,
+	
+	The MCM Modeling Team
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
