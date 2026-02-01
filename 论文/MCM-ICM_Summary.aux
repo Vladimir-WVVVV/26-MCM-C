@@ -2,38 +2,94 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background}{1}{subsection.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Problem Restatement}{1}{subsection.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Our Approach}{1}{subsection.1.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Task 1: Reconstructing the Black Box}{1}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}The Challenge}{1}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}The Hybrid MAP-MCMC Model}{1}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Results}{2}{subsection.2.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Distribution of reconstruction accuracy across 5 robustness trials.}}{2}{figure.caption.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{3}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Background and Motivation}{3}{subsection.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Literature Review}{3}{subsection.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Our Contributions}{3}{subsection.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Problem Restatement}{4}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Problem Statement}{4}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Mathematical Formulation \& Constraints}{4}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}General Assumptions}{4}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Task 1: Reconstructing the Black Box}{5}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Formulation: An Ill-Posed Inverse Problem}{5}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}The Hybrid MAP-MCMC Dual-Engine Model}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Engine 1: Maximum A Posteriori (MAP) Estimation}{5}{subsubsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Engine 2: Markov Chain Monte Carlo (MCMC)}{5}{subsubsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}The ML-Based Temporal Prior}{5}{subsubsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Model Validation and Results}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Distribution of reconstruction accuracy across 5 robustness trials.}}{6}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:q1_accuracy}{{1}{2}{Distribution of reconstruction accuracy across 5 robustness trials}{figure.caption.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Task 2: Method Comparison}{2}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}The Two Methods}{2}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Counterfactual Simulation}{3}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Findings}{3}{subsection.3.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Survival rates of "Judge Favorites" and "Fan Favorites" under different scoring methods.}}{3}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:q2_comparison}{{2}{3}{Survival rates of "Judge Favorites" and "Fan Favorites" under different scoring methods}{figure.caption.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Task 3: The Bias Within}{3}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Hybrid Attribution Model}{3}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Key Discoveries}{4}{subsection.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Coefficients of influence for Judges vs. Fans.}}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:q3_analysis}{{3}{4}{Coefficients of influence for Judges vs. Fans}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Task 4: Designing the Optimal Mechanism}{4}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Objective Function}{4}{subsection.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Grid Search Optimization}{4}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Optimal Configuration}{5}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Simulation Results}{5}{subsection.5.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Optimization landscape showing the trade-off between Fairness and Retention.}}{5}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:q4_optimization}{{4}{5}{Optimization landscape showing the trade-off between Fairness and Retention}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Sensitivity Analysis}{5}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{6}{section.7}\protected@file@percent }
-\newlabel{LastPage}{{7}{6}{}{page.6}{}}
-\gdef\lastpage@lastpage{6}
-\gdef\lastpage@lastpageHy{6}
-\gdef \@abspage@last{7}
+\newlabel{fig:q1_accuracy}{{1}{6}{Distribution of reconstruction accuracy across 5 robustness trials}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Task 2: Method Comparison}{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Defining the Scoring Methods}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Counterfactual Simulation}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Metric 1: Information Compression}{7}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Metric 2: Disagreement Rate by Stage}{7}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Theoretical Perspective}{7}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Fairness Analysis: Who Benefits?}{8}{subsection.4.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Survival Rates of Different Archetypes under Two Methods}}{8}{table.caption.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Survival rates of "Judge Favorites" and "Fan Favorites" under different scoring methods.}}{8}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:q2_comparison}{{2}{8}{Survival rates of "Judge Favorites" and "Fan Favorites" under different scoring methods}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Task 3: The Bias Within}{8}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Hybrid Attribution Model}{8}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Results and Discussion}{9}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}The Age Paradox}{9}{subsubsection.5.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fan preference vs. Age, showing the characteristic U-shaped curve with 95\% confidence intervals.}}{9}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:q3_age_curve}{{3}{9}{Fan preference vs. Age, showing the characteristic U-shaped curve with 95\% confidence intervals}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Demographic Interactions}{9}{subsubsection.5.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Heatmap of Fan Vote Share by Industry and Age Group. Note the "hot spots" for young musicians and older icons.}}{10}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:q3_heatmap}{{4}{10}{Heatmap of Fan Vote Share by Industry and Age Group. Note the "hot spots" for young musicians and older icons}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Task 4: Designing the Optimal Mechanism}{10}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}The Multi-Objective Optimization Problem}{10}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Pareto Frontier Analysis}{11}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Design Variables}{11}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Grid Search Methodology}{11}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Results: The "Early Fan, Late Judge" Strategy}{11}{subsection.6.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Optimal Weight Configuration}}{11}{table.caption.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}The "Bottom 3 Judge Save"}{12}{subsection.6.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Optimization landscape showing the trade-off between Fairness and Retention. The star indicates the optimal configuration.}}{12}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:q4_optimization}{{5}{12}{Optimization landscape showing the trade-off between Fairness and Retention. The star indicates the optimal configuration}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Sensitivity Analysis}{12}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Model Parameter Sensitivity}{12}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Sensitivity of Reconstruction Accuracy to Regularization Parameter $\lambda $. The optimal performance is found near $\lambda =0.3$, confirming our parameter selection.}}{13}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:sens_lambda}{{6}{13}{Sensitivity of Reconstruction Accuracy to Regularization Parameter $\lambda $. The optimal performance is found near $\lambda =0.3$, confirming our parameter selection}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Robustness to Data Missingness}{13}{subsection.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Model Robustness to Missing Judge Scores. The accuracy remains above 97\% even with 10\% missing data.}}{13}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:sens_missing}{{7}{13}{Model Robustness to Missing Judge Scores. The accuracy remains above 97\% even with 10\% missing data}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Stability Analysis via Bootstrap}{14}{subsection.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Boxplot of Reconstruction Accuracy across 100 Bootstrap Samples. The tight distribution indicates high model stability.}}{14}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:sens_bootstrap}{{8}{14}{Boxplot of Reconstruction Accuracy across 100 Bootstrap Samples. The tight distribution indicates high model stability}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Robustness to Vote Volatility}{14}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}Robustness to Judge Bias}{14}{subsection.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Strengths, Weaknesses, and Future Work}{15}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Strengths}{15}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Weaknesses}{15}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Future Work}{15}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {8.3.1}Integration of Real-Time Social Media Sentiment}{16}{subsubsection.8.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {8.3.2}Agent-Based Modeling (ABM) of Voter Behavior}{16}{subsubsection.8.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {8.3.3}Dynamic Voting Windows}{16}{subsubsection.8.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{16}{section.9}\protected@file@percent }
+\bibcite{gelman}{1}
+\bibcite{tarantola}{2}
+\bibcite{hastie}{3}
+\bibcite{arrow}{4}
+\bibcite{mcmc_ref}{5}
+\bibcite{dwts_data}{6}
+\@writefile{toc}{\contentsline {section}{Memo}{18}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Mathematical Derivations}{20}{appendix.A}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.1}Bayesian Inference for Vote Reconstruction}{20}{subsection.A.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}Code Implementation Details}{20}{appendix.B}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}MCMC Sampler Logic (Python)}{20}{subsection.B.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Hybrid MAP-MCMC Solver}}{20}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}Ridge Regression for Factor Analysis}{21}{subsection.B.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Numpy-based Ridge Regression}}{21}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {C}Data Specifications}{21}{appendix.C}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.1}Data Dictionary}{21}{subsection.C.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Data Dictionary for Analysis}}{21}{table.caption.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.2}Simulation Parameters}{21}{subsection.C.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Key Simulation Parameters}}{22}{table.caption.12}\protected@file@percent }
+\newlabel{tab:params}{{4}{22}{Key Simulation Parameters}{table.caption.12}{}}
+\newlabel{LastPage}{{C.2}{22}{Simulation Parameters}{page.22}{}}
+\gdef\lastpage@lastpage{22}
+\gdef\lastpage@lastpageHy{22}
+\gdef \@abspage@last{23}
