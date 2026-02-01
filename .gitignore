@@ -5,7 +5,7 @@ A137*
 *ç¾Žèµ›*
 
 # Ignore specific large files
-*.pdf
+# *.pdf
 *.zip
 *.rar
 *.mov
@@ -33,5 +33,11 @@ __pycache__/
 *.toc
 *.synctex.gz
 *.nlo
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.xdv
 
-ÂÛÎÄ2.0£¿/±¸·Ý/
+# Ignore backup directory
+**/å¤‡ä»½/ï¿½ï¿½ï¿½ï¿½2.0ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½/

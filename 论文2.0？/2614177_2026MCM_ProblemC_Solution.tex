@@ -214,9 +214,11 @@
 		$C_{t,i}$ & Combined Score determining elimination & Score \\
 		$\mathcal{R}_{t,i}$ & Rank of contestant $i$ in week $t$ & Integer \\
 		$E_t$ & Set of eliminated contestants in week $t$ & Set \\
+		$T_t$ & Indicator variable for Double Elimination week & Binary \\
 		$w_J(t), w_F(t)$ & Dynamic weights for Judges and Fans in week $t$ & $[0, 1]$ \\
 		$\beta_{\text{age}}$ & Regression coefficient for Age bias & - \\
 		$\lambda_{\text{reg}}$ & Regularization parameter for ML Prior & - \\
+		$\epsilon$ & Safety margin in loss function & Score \\
 		$\mathcal{J}$ & "Journey Protocol" Optimization Function & - \\
 		
 	\end{longtable}
@@ -274,7 +276,7 @@
 	While judge scores are transparent and publicly available, the distribution of audience votes is kept strictly confidential by the producers. This opacity creates a "black box" that obscures the true dynamics of the competition. Controversial eliminations frequently spark public debate. For instance, in Season 28 (2019), pop star \textbf{Ally Brooke} consistently topped the judge leaderboards but faced multiple "bottom two" scares, highlighting the disconnect between skill and popularity. Conversely, radio host \textbf{Bobby Bones} (Season 27) won the Mirrorball Trophy despite consistently low technical scores, sparking outrage about the "popularity contest" nature of the show. These cases raise critical questions: Is the current voting system optimally designed? Does it protect talent, or does it cater excessively to popularity?
 	
 	\subsection{Literature Review}
-	Existing literature on reality TV voting mechanisms often draws comparisons to other major franchises. Studies on \textit{American Idol} and \textit{The Voice} suggest that pure popularity voting maximizes viewer engagement but sacrifices meritocracy (Arrow, 1951). However, DWTS is unique in its hybrid aggregation method. Furthermore, the reconstruction of hidden voting data relates closely to the field of \textbf{Inverse Problems} in statistical physics and social choice theory (Tarantola, 2005), where latent variables must be inferred from aggregate outcomes. To our knowledge, no prior work has applied a MAP-MCMC dual-engine approach to reconstruct reality TV voting distributions with this level of granularity.
+	Existing literature on reality TV voting mechanisms often draws comparisons to other major franchises. Studies on \textit{American Idol} and \textit{The Voice} suggest that pure popularity voting maximizes viewer engagement but sacrifices meritocracy (Arrow, 1951). However, DWTS is unique in its hybrid aggregation method. Furthermore, the reconstruction of hidden voting data relates closely to the field of \textbf{Inverse Problems} in statistical physics and social choice theory (Tarantola, 2005), where latent variables must be inferred from aggregate outcomes. To our knowledge, no prior work has applied a MAP-MCMC dual-engine approach to reconstruct reality TV voting distributions with this level of granularity. Recent studies in scoring mechanism optimization (e.g., judging in figure skating) have highlighted the trade-off between subjective artistry and objective technicality, a parallel we explore here.
 	
 	\subsection{Our Contributions}
 	We present a comprehensive framework to demystify the voting process. Our contributions are twofold:
@@ -307,7 +309,7 @@
 	To make the modeling process tractable, we adopt the following assumptions:
 	\begin{enumerate}
 		\item \textbf{Rationality of Judges:} Judge scores are primarily a reflection of technical performance, though they may contain some subjective bias.
-		\item \textbf{Consistency of Fan Preferences:} While fan votes fluctuate, a contestant's "base popularity" is relatively stable over short periods (e.g., consecutive weeks), allowing for temporal smoothing.
+		\item \textbf{Consistency of Fan Preferences:} While fan votes fluctuate, a contestant's "base popularity" is relatively stable over short periods (e.g., consecutive weeks), allowing for temporal smoothing. \textit{Boundary Condition:} This assumption holds under normal conditions but may be violated during "viral events" or scandals. We address this limitation in our Sensitivity Analysis.
 		\item \textbf{Elimination Determinism:} The elimination result is a deterministic function of the combined score, except in cases of tie-breakers which follow known rules.
 	\end{enumerate}
 
@@ -400,7 +402,7 @@ We monitored the trace plots of the vote shares. The chains typically converged 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{png格式图/ph_task1_traceplot.png}
+    \includegraphics[width=0.95\textwidth]{visualization_results/Task1_MCMC_Trace.png}
     \caption{MCMC Trace Plot showing convergence of 3 chains for different contestants. Overlap indicates $\hat{R} < 1.05$.}
     \label{fig:mcmc_trace}
 \end{figure}
@@ -476,7 +478,7 @@ The output of this task is a comprehensive dataset \texttt{Q1\_estimated\_fan\_v
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.85\textwidth]{png格式图/ph_task2_disagreement_trend.png}
+        \includegraphics[width=0.85\textwidth]{visualization_results/Task2_Disagreement_Trend.png}
         \caption{Disagreement Rate between Ranking and Percentage methods by week. Note the high divergence in early weeks (23.1\%), stabilizing later.}
         \label{fig:disagreement_trend}
     \end{figure}
@@ -780,6 +782,8 @@ We could explore the impact of changing \textit{when} voting happens. Currently,
 	
 	The MCM Modeling Team
 	
+
+	
 	\newpage
 	\appendix
 	\section{Mathematical Derivations}
@@ -929,6 +933,19 @@ S. Brooks et al., \emph{Handbook of Markov Chain Monte Carlo}. CRC Press, 2011.
 T. Hastie, R. Tibshirani, and J. Friedman, \emph{The Elements of Statistical Learning}. Springer, 2009.
 
 \end{thebibliography}
+
+\clearpage
+\section*{AI Use Disclosure}
+\addcontentsline{toc}{section}{AI Use Disclosure}
+
+In compliance with the competition policies, we disclose the use of AI tools in this project:
+
+\begin{itemize}
+    \item \textbf{Model Development (Task 1):} We utilized the "Doubao" AI assistant (by ByteDance) during the conceptualization phase. Specifically, Doubao provided the inspiration for the \textbf{Maximum A Posteriori (MAP)} algorithm to address the inverse problem of vote reconstruction. This guidance was instrumental in formulating the dual-engine architecture.
+    \item \textbf{Manuscript Preparation:} During the writing process, we used Doubao to provide suggestions on LaTeX formatting, chart layout, and background knowledge supplementation (e.g., details on \emph{Dancing with the Stars} rules).
+\end{itemize}
+
+All mathematical derivations, code implementation, and final analysis were performed by the team members. AI was used solely as a consultative tool for ideation and formatting.
 
 
 \end{document}
