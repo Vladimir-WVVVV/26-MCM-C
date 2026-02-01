@@ -6,9 +6,14 @@
 ## 2. 模型架构
 采用**混合非线性回归模型 (Hybrid Regression)**：
 *   评委模型：$Score \sim Age + Industry + Gender$
-*   粉丝模型：$VoteShare \sim Age + Age^2 + Industry + Gender$
+*   粉丝模型：$VoteShare \sim Age + Age^2 + Age^3 + Industry + Gender$ (引入多项式回归)
 
-![Q3 Factor Analysis](visualization_results/Q3_Factor_Analysis.png)
+我们对比了不同阶数的多项式拟合效果：
+*   **Linear ($d=1$)**: $R^2 = 0.0578$
+*   **Quadratic ($d=2$)**: $R^2 = 0.0582$
+*   **Cubic ($d=3$)**: $R^2 = 0.0701$ (显著性提升，验证了非线性关系)
+
+![Q3 Age Curve](论文/visualization_results/Q3_Age_Curve_CI.png)
 
 ## 3. 核心发现
 
@@ -25,6 +30,8 @@
     *   演艺圈人士通常具备更好的舞台表现力和表情管理，更符合评委的审美标准。
 *   **粉丝的最爱**：**运动员 (Athletes, +0.004)**
     *   NFL/NBA 球星拥有庞大的死忠粉群体，且运动员的拼搏精神更容易引发观众共鸣，常能上演“黑马逆袭”。
+
+![Q3 Heatmap](论文/visualization_results/Q3_Heatmap.png)
 
 ## 4. 结论
 评委看重**“现在的表现”**（Technical Perfection），而粉丝看重**“过去的名气”**（Legacy）和**“未来的潜力”**（Growth）。两者的评价标准存在本质的维度差异。

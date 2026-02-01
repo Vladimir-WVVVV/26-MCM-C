@@ -27,6 +27,7 @@
 | **`Q2_compare_methods.py`** | **[Task 2]** 排名法 vs 百分比法仿真脚本。包含反事实模拟、偏向性分析和争议案例复盘。 |
 | **`Q3_analyze_factors.py`** | **[Task 3]** 归因分析脚本。使用混合非线性模型量化年龄、行业对评委分/粉丝票的影响。 |
 | **`Q4_design_mechanism.py`** | **[Task 4]** 赛制设计脚本。实现多目标参数寻优，寻找最佳的动态权重组合。 |
+| **`supplementary_analysis.py`** | **[Supp]** 补充分析脚本。执行敏感性分析（参数/缺失数据）、Bootstrap 稳定性检验及 Task 3/4 的可视化绘图。 |
 | **`generate_charts.py`** | **[Viz]** 自动化绘图脚本。生成 Q1-Q4 的分析图表（保存在 `visualization_results/`）。 |
 
 ### 数据文件 (Data Files)
@@ -63,6 +64,9 @@ python Q3_analyze_factors.py
 
 # 4. [设计] 运行新赛制参数寻优与验证
 python Q4_design_mechanism.py
+
+# 5. [补充] 运行敏感性分析与补充绘图 (新增)
+python supplementary_analysis.py
 ```
 
 ---
