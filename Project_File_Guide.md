@@ -88,7 +88,38 @@ pip install -r requirements.txt
 
 ---
 
-## 4. 项目文档 (Documentation)
+## 4. 可视化 (Visualization)
+
+### `generate_charts.py`
+*   **类型**: 绘图脚本 (Visualization Script)
+*   **作用**: 生成项目所需的所有高质量图表。
+*   **输出**: 图片文件保存在 `visualization_results/` 目录下。
+*   **包含图表**:
+    *   Q1 准确率分布 (Accuracy Distribution)
+    *   Q1 粉丝投票分布 (Vote Distribution)
+    *   Q2 方法对比 (Method Comparison)
+    *   Q3 因子分析 (Factor Analysis)
+    *   Q4 优化地形 (Optimization Landscape)
+*   **如何使用**:
+    ```bash
+    python generate_charts.py
+    ```
+
+---
+
+## 5. 项目文档 (Documentation)
+
+### `MCM_Final_Paper.md`
+*   **类型**: **[核心]** 最终论文初稿
+*   **作用**: 完整的美赛论文草稿，包含摘要、引言、Q1-Q4 模型、灵敏度分析及给导演的信。格式符合竞赛标准。
+
+### `Hybrid_Model_Technical_Detail.md`
+*   **类型**: **[核心]** 技术深度解析
+*   **作用**: 极度详细的 Q1 模型技术文档。包含数学公式推导、Hinge Loss 定义、MCMC 自适应策略等硬核细节。
+
+### `Model_Evolution_Analysis.md`
+*   **类型**: **[参考]** 模型演进史
+*   **作用**: 记录了从朴素蒙特卡洛到双引擎架构的完整迭代过程，适合用于撰写 "Model Development" 章节。
 
 ### `Optimization_Summary.md`
 *   **类型**: 成果汇报文档
@@ -106,7 +137,7 @@ pip install -r requirements.txt
 
 ---
 
-## 5. 建议运行顺序 (Recommended Workflow)
+## 6. 建议运行顺序 (Recommended Workflow)
 
 如果您刚刚拿到本项目，建议按照以下顺序操作：
 

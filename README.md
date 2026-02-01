@@ -1,14 +1,14 @@
-# MCM Problem C 解决方案代码库 (Dancing with the Stars Solution)
+# 2026 MCM Problem C: Dancing with the Data (DWTS)
 
-本仓库包含了针对 MCM Problem C (Dancing with the Stars) 的完整解决方案代码。代码涵盖了数据预处理、观众投票估算、模型分析与优化、以及新赛制设计等四个主要任务。
+## 📄 核心交付文档 (Key Deliverables)
+> **必读**：以下文档构成了我们项目的核心成果体系。
 
-## 📚 文档导航 (Documentation)
-
-为了方便团队协作与成果展示，我们准备了以下详细文档：
-
-### 汇总报告
-*   **[📄 优化总结与核心成果 (Optimization Summary)](Optimization_Summary.md)**: 包含所有关键发现、数据结论和赛制改革建议。
-*   **[⚙️ 技术实现文档 (Technical Documentation)](Technical_Documentation.md)**: 包含核心算法细节和系统架构。
+| 文档名称 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| **[`MCM_Final_Paper.md`](MCM_Final_Paper.md)** | **📜 最终论文初稿** | **[Most Important]** 包含摘要、Q1-Q4 完整建模过程、灵敏度分析及给导演的信。可以直接用于排版。 |
+| **[`Hybrid_Model_Technical_Detail.md`](Hybrid_Model_Technical_Detail.md)** | **📘 技术深度解析** | **[Technical]** Q1 双引擎模型（MAP+MCMC）的数学原理、公式推导与算法细节。 |
+| **[`Model_Evolution_Analysis.md`](Model_Evolution_Analysis.md)** | **🧬 模型演进史** | **[Process]** 记录了从朴素蒙特卡洛到双引擎架构的 4 阶段迭代过程。 |
+| **[`Project_File_Guide.md`](Project_File_Guide.md)** | **📂 项目文件指南** | 详细列出了项目中所有代码、数据文件的用途和对应关系。 |
 
 ### 分项详细报告 (Detailed Reports)
 *   **[Q1 粉丝投票数据精准还原](Q1_Results_Report.md)**: 解释双引擎算法与 98.21% 准确率。
